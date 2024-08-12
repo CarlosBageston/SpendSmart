@@ -1,0 +1,65 @@
+.PWABadge-toast {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    margin: 16px;
+    padding: 20px;
+    border-radius: 12px;
+    z-index: 1000;
+    text-align: left;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    background: linear-gradient(135deg, #ff7e5f, #feb47b);
+    color: white;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    animation: slideIn 0.3s ease-out;
+  }
+  
+  .PWABadge-message {
+    margin-bottom: 16px;
+    font-size: 1rem;
+  }
+  
+  .PWABadge-buttons {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .PWABadge-toast-button {
+    border: none;
+    outline: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    font-size: 0.9rem;
+  }
+  
+  .PWABadge-toast-button:hover {
+    background: rgba(255, 255, 255, 0.2);
+  }
+  
+  .PWABadge-toast-button:active {
+    background: rgba(255, 255, 255, 0.4);
+  }
+  
+  .PWABadge-toast-button.download {
+    background-color: #28a745;
+    color: white;
+    margin-left: 8px;
+  }
+  
+  .PWABadge-toast-button.download:hover {
+    background-color: #218838;
+  }
+  
+  @keyframes slideIn {
+    from {
+      transform: translateY(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+  
