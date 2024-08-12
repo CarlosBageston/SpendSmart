@@ -2,6 +2,7 @@ import React from 'react';
 import { Button } from '@mui/material';
 import { Link } from 'react-router-dom';
 import styled from 'styled-components';
+import CircularProgress from '@mui/material/CircularProgress';
 
 interface CustomButtonProps {
     title: string;
@@ -11,6 +12,8 @@ interface CustomButtonProps {
     colorBackground?: string;
     colorLabel?: string;
     type?: 'Button' | 'Link';
+    loading?: boolean;
+    disabled?: boolean
 }
 
 const CustomButton: React.FC<CustomButtonProps> = ({
@@ -20,16 +23,25 @@ const CustomButton: React.FC<CustomButtonProps> = ({
     buttonStyle,
     colorBackground,
     colorLabel,
-    type = 'Button'
+    type = 'Button',
+    loading = false,
+    disabled
 }) => {
+    const buttonContent = loading ? (
+        <CircularProgress size={31} color="secondary" />
+    ) : (
+        title
+    );
+
     const button = (
         <StyledButton
             onClick={onClick}
             style={buttonStyle}
             background={colorBackground}
             labelColor={colorLabel}
+            disabled={loading || disabled}
         >
-            {title}
+            {buttonContent}
         </StyledButton>
     );
 
@@ -50,6 +62,10 @@ const StyledButton = styled(Button) <{ background?: string; labelColor?: string 
         &:hover {
             background-color: ${(props) => props.background ? props.background : props.theme.paletteColor.secundGreen};
             opacity: 0.9;
+        }
+        &:disabled {
+            background-color: ${(props) => props.background ? props.background : props.theme.paletteColor.secundGreen};
+            opacity: 0.7;
         }
     }
 `;

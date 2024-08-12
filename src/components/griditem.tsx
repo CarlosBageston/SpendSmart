@@ -8,6 +8,7 @@ interface GridItemProps extends GridProps {
     justifyContent?: 'center' | 'space-around' | 'space-between' | 'space-evenly' | 'flex-end' | 'flex-start' | 'none';
     direction?: 'row' | 'column';
     paddingTopMuiGrid?: string;
+    input?: boolean;
 }
 
 const GridItem: React.FC<GridItemProps> = ({
@@ -21,6 +22,7 @@ const GridItem: React.FC<GridItemProps> = ({
     justifyContent,
     direction,
     paddingTopMuiGrid,
+    input,
     ...rest
 }) => {
     return (
@@ -34,6 +36,7 @@ const GridItem: React.FC<GridItemProps> = ({
             style={{ ...style, paddingTop: paddingTopMuiGrid }}
             justifyContent={justifyContent}
             direction={direction}
+            input={input}
             {...rest}
         >
             {children}
@@ -41,12 +44,13 @@ const GridItem: React.FC<GridItemProps> = ({
     );
 };
 
-const StyledGridItem = styled(Grid) <{ justifyContent?: string; direction?: string }>`
+const StyledGridItem = styled(Grid) <{ justifyContent?: string; direction?: string; input?: boolean }>`
     display: flex;
     width: 100%;
     margin-bottom: 16px;
     justify-content: ${props => props.justifyContent || 'center'};
     flex-direction: ${props => props.direction || 'row'};
+    height: ${props => (props.input ? '103px' : 'auto')};
 `;
 
 export default GridItem;

@@ -72,7 +72,7 @@ export default defineConfig({
 		alias: {
 			"@": path.resolve(__dirname, "./src"),
 			"@page": path.resolve(__dirname, "./src/page"),
-			"@enums": path.resolve(__dirname, "./src/constants/enums/"),
+			"@enums": path.resolve(__dirname, "./src/constants/enums/")
 		},
 	},
 })

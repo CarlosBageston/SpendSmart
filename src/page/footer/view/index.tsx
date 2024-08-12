@@ -24,15 +24,15 @@ const Footer: FC = () => {
             >
                 <BottomNavigationAction
                     component={Link}
-                    to='/'
+                    to='/home'
                     label="Home"
-                    value={'/'}
+                    value={'/home'}
                     icon={<Home />}
                 />
                 <BottomNavigationAction
                     component={Link}
-                    to='/fixedcosts'
-                    value={'/fixedcosts'}
+                    to='/fixed-costs'
+                    value={'/fixed-costs'}
                     label="Despesas Fixas"
                     icon={<MonetizationOn />}
 
