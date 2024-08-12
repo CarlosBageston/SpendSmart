@@ -13,7 +13,9 @@ interface ScreenProps {
     buttonHref?: string;
     showButton?: boolean;
     onClickButton?: (() => void);
-    typeButton?: 'Button' | 'Link'
+    typeButton?: 'Button' | 'Link',
+    showFooter?: boolean,
+    loadingButton?: boolean
 }
 
 const ScreenLayout = ({
@@ -25,6 +27,8 @@ const ScreenLayout = ({
     buttonHref,
     buttonTitle,
     showButton = true,
+    showFooter = true,
+    loadingButton,
     typeButton = 'Button',
     onClickButton
 }: ScreenProps) => {
@@ -45,10 +49,14 @@ const ScreenLayout = ({
             </Content>
             {showButton && (
                 <FooterLayout>
-                    <CustomButton href={buttonHref ?? ''} title={buttonTitle ?? ''} onClick={onClickButton} type={typeButton} />
+                    <CustomButton href={buttonHref ?? ''} title={buttonTitle ?? ''} onClick={onClickButton} type={typeButton} loading={loadingButton} />
                 </FooterLayout>
             )}
-            <Footer />
+            {showFooter ? (
+                <Footer />
+            ) : (
+                <GridFooterEmpty />
+            )}
         </Container>
     );
 };
@@ -101,6 +109,15 @@ const FooterLayout = styled.div`
     align-items: center;
     justify-content: center;
     margin-bottom: 40px;
+`;
+const GridFooterEmpty = styled.div`
+ position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #fff;
+  z-index: 1000;
+  height: 3rem;
 `;
 
 export default ScreenLayout;
