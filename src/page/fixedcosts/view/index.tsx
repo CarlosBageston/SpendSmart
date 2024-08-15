@@ -103,7 +103,7 @@ function FixedCosts() {
                         value={values.dtVigencia}
                     />
                 </GridItem>
-                <GridItem alignItems='center' paddingTopMuiGrid='10px' marginTop={'-30px'}>
+                <GridItem alignItems='center' paddingTopMuiGrid='5px' marginTop={'-30px'}>
                     <Typography>Data de término Indefinida?</Typography>
                     <Checkbox
                         name='dtIndefinida'
@@ -114,7 +114,7 @@ function FixedCosts() {
                         }}
                     />
                 </GridItem>
-                <GridItem>
+                <GridItem paddingTopMuiGrid='10px'>
                     <CustomButton
                         colorBackground='#2c95ff'
                         colorLabel='#f1f1f1'

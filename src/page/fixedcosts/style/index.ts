@@ -2,7 +2,7 @@ import styled from "styled-components";
 
 export const DivExpendCard = styled.div`
 width: 100%;
-height: 19rem;
+height: 13rem;
 overflow-y: auto;
 overflow-x: hidden;
 margin-top: 10px;
