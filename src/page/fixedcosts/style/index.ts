@@ -2,9 +2,10 @@ import styled from "styled-components";
 
 export const DivExpendCard = styled.div`
 width: 100%;
-height: 7rem;
+height: 19rem;
 overflow-y: auto;
 overflow-x: hidden;
+margin-top: 10px;
 
   &::-webkit-scrollbar {
     width: 14px; 
@@ -24,4 +25,12 @@ overflow-x: hidden;
   &::-webkit-scrollbar-thumb:hover {
     background: #093050; 
   }
+`;
+
+export const TitleCircule = styled('div')`
+width: 100%;
+height: 8rem;
+display: flex;
+align-items: center;
+justify-content: center;
 `;

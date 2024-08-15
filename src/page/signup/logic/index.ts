@@ -6,7 +6,6 @@ import { setError, setLoading, State } from "@/store/reducer/reducer";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { SignupModel } from "../model";
-import { TableKey } from "@/constants/types/tableName";
 
 /**
  * Hook que contém a lógica para o cadastro de usuário.
@@ -24,7 +23,7 @@ export const useSignupLogic = () => {
      * @returns Um valor booleano indicando se o e-mail já está registrado.
      */
     const checkIfEmailExists = async (email: string): Promise<boolean> => {
-        const q = query(collection(db, TableKey.Users), where('email', '==', email));
+        const q = query(collection(db, 'Users'), where('email', '==', email));
         const querySnapshot = await getDocs(q);
         return querySnapshot.size > 0;
     };
@@ -53,7 +52,7 @@ export const useSignupLogic = () => {
             name: values.name,
             createdAt: new Date(),
         };
-        await addDoc(collection(db, TableKey.Users), newValues);
+        await addDoc(collection(db, 'Users'), newValues);
     };
 
     /**

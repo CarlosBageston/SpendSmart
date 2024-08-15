@@ -50,7 +50,7 @@ const StyledGridItem = styled(Grid) <{ justifyContent?: string; direction?: stri
     margin-bottom: 16px;
     justify-content: ${props => props.justifyContent || 'center'};
     flex-direction: ${props => props.direction || 'row'};
-    height: ${props => (props.input ? '103px' : 'auto')};
+    height: ${props => (props.input ? '80px' : 'auto')};
 `;
 
 export default GridItem;

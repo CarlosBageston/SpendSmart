@@ -3,22 +3,23 @@ import GlobalStyle from "./styleGlobal";
 import { theme } from '@/constants/theme/index.ts';
 import { ThemeProvider } from "styled-components";
 import Router from "./routes/routes";
-import { Provider } from 'react-redux';
-import store from './store/reducer/store.ts';
+import UseAuth from './hooks/auth/useauth.tsx';
+import { Box } from './store/assets/loadingStyle.ts';
+import { CircularProgress } from '@mui/material';
 
 function App() {
+  const { isLoading } = UseAuth();
+  if (isLoading) {
+    return <Box><CircularProgress /></Box>;
+  }
 
   return (
-    <>
-      <Provider store={store}>
-        <ThemeProvider theme={theme}>
-          <GlobalStyle />
-          <Router />
-          <PWABadge />
-        </ThemeProvider>
-      </Provider>
-    </>
-  )
+    <ThemeProvider theme={theme}>
+      <GlobalStyle />
+      <Router />
+      <PWABadge />
+    </ThemeProvider>
+  );
 }
 
-export default App
+export default App;

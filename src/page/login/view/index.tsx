@@ -91,6 +91,7 @@ function Login() {
                                 fontSize: '14px',
                                 fontWeight: 'bold'
                             }}
+                            disabled={loading}
                             title='Criar Conta'
                             type='Link'
                             href='/signup'

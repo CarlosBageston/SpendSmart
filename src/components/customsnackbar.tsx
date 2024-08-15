@@ -26,7 +26,7 @@ function CustomSnackBar({ message, open, setOpen, errorAlert }: SnackBarProps) {
                 horizontal: 'left',
             }}
             open={open}
-            autoHideDuration={6000}
+            autoHideDuration={4000}
             onClose={() => setOpen(false)}
             message={message}
         >

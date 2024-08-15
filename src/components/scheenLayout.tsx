@@ -16,6 +16,8 @@ interface ScreenProps {
     typeButton?: 'Button' | 'Link',
     showFooter?: boolean,
     loadingButton?: boolean
+    disabledButton?: boolean
+    paddingButton?: string
 }
 
 const ScreenLayout = ({
@@ -29,7 +31,9 @@ const ScreenLayout = ({
     showButton = true,
     showFooter = true,
     loadingButton,
+    disabledButton,
     typeButton = 'Button',
+    paddingButton,
     onClickButton
 }: ScreenProps) => {
     return (
@@ -48,8 +52,8 @@ const ScreenLayout = ({
                 {children}
             </Content>
             {showButton && (
-                <FooterLayout>
-                    <CustomButton href={buttonHref ?? ''} title={buttonTitle ?? ''} onClick={onClickButton} type={typeButton} loading={loadingButton} />
+                <FooterLayout padding={paddingButton}>
+                    <CustomButton disabled={disabledButton} href={buttonHref ?? ''} title={buttonTitle ?? ''} onClick={onClickButton} type={typeButton} loading={loadingButton} />
                 </FooterLayout>
             )}
             {showFooter ? (
@@ -102,8 +106,8 @@ const Content = styled.div`
     justify-content: center;
 `;
 
-const FooterLayout = styled.div`
-    padding: 30px;
+const FooterLayout = styled.div<{ padding?: string }>`
+    padding: ${props => props.padding ? props.padding : '30px'};
     background-color: #fff;
     display: flex;
     align-items: center;
@@ -111,13 +115,13 @@ const FooterLayout = styled.div`
     margin-bottom: 40px;
 `;
 const GridFooterEmpty = styled.div`
- position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background-color: #fff;
-  z-index: 1000;
-  height: 3rem;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: #fff;
+    z-index: 1000;
+    height: 3rem;
 `;
 
 export default ScreenLayout;
