@@ -1,29 +1,13 @@
-import { FC } from 'react';
 import { BottomNavigation, BottomNavigationAction } from '@mui/material';
 import { Home, MonetizationOn } from '@mui/icons-material';
-import { useLocation, useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
-import UseUnsavedChangesWarning from '@/hooks/useUnsavedChangesWarning';
+import { StyledFooter } from '@/page/footer/style';
 import StanderdModal from '@/components/standerdModal';
+import useFooterLogic from '../logic';
 
-const StyledFooter = styled.footer`
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background-color: ${({ theme }) => theme.paletteColor.lightGreen};
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-`;
 
-const Footer: FC = () => {
-    const navigate = useNavigate();
-    const location = useLocation();
-    const { showModal, handleConfirmNavigation, handleCancelNavigation, confirmNavigation } = UseUnsavedChangesWarning();
+function Footer() {
 
-    const handleNavigate = (route: string) => {
-        confirmNavigation(() => navigate(route));
-    };
+    const { handleCancelNavigation, handleConfirmNavigation, handleNavigate, location, showModal } = useFooterLogic();
 
     return (
         <StyledFooter>
@@ -57,6 +41,6 @@ const Footer: FC = () => {
             )}
         </StyledFooter>
     );
-};
+}
 
 export default Footer;
