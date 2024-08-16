@@ -1,9 +1,9 @@
 // hooks/useTableKeys.ts
 import { useSelector } from 'react-redux';
-import { State } from '@/store/reducer/reducer';
+import { RootState } from '@/store/reducer/store';
 
 export const UseTableKeys = () => {
-    const user = useSelector((state: State) => state.user.user);
+    const user = useSelector((state: RootState) => state.user.user);
 
     if (user === null) {
         throw new Error("Usuário não autenticado");

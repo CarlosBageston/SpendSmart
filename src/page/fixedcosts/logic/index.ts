@@ -3,12 +3,14 @@ import { FixedCostsModel } from "../model";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { collection, doc, writeBatch } from "firebase/firestore";
-import { setError, setLoading, State } from "@/store/reducer/reducer";
+import { setError, setLoading } from "@/store/reducer/reducer";
 import { UseTableKeys } from "@/hooks/usetablename";
 import { UseFirestoreQuery } from "@/hooks/usefirestorequery";
 import { SituacaoRegistroEnum } from "@/constants/enums/situacaoregistroenum";
 import dayjs from "dayjs";
 import { v4 as uuidv4 } from 'uuid';
+import { RootState } from "@/store/reducer/store";
+import { StateSnackBar } from "@/components/customsnackbar";
 
 
 /**
@@ -29,6 +31,16 @@ interface UseFixedCostsLogicParams {
      * Função para redefinir o formulário.
      */
     resetForm: () => void;
+
+    /**
+     * Função para atualizar o estado local que indica se há mudanças não salvas.
+     */
+    setDirtyLocal: React.Dispatch<React.SetStateAction<boolean>>;
+
+    /**
+     * Função para atualizar o estado que indica se deve Mostrar a modal de Exclusão.
+     */
+    setShowModalDelete:  React.Dispatch<React.SetStateAction<FixedCostsModel | undefined>>
 }
 
 /**
@@ -37,18 +49,17 @@ interface UseFixedCostsLogicParams {
  * @param {UseFixedCostsLogicParams} params - Os parâmetros para a lógica de custos fixos.
  * @returns {object} - Um objeto contendo estados e funções úteis para o gerenciamento de custos fixos.
  */
-export function useFixedCostsLogic({ values, setFieldValue, resetForm }: UseFixedCostsLogicParams) {
+export function useFixedCostsLogic({ values, setFieldValue, resetForm, setDirtyLocal, setShowModalDelete }: UseFixedCostsLogicParams) {
     const dispatch = useDispatch();
     const [key, setKey] = useState<number>(0);
-    const [openSnackBar, setOpenSnackBar] = useState<boolean>(false);
+    const [openSnackBar, setOpenSnackBar] = useState<StateSnackBar>({error: false, success: false});
     const [dtIndefinida, setdtIndefinida] = useState<boolean>(false);
     const [fixedCostsList, setFixedCostsList] = useState<FixedCostsModel[]>([]);
     const [selected, setSelected] = useState<FixedCostsModel>();
-    const [openSnackBarSuccess, setOpenSnackBarSuccess] = useState<boolean>(false);
 
     const tableKey = UseTableKeys();
-    const loading = useSelector((state: State) => state.user.loading);
-    const errorFixedCosts = useSelector((state: State) => state.user.error);
+    const loading = useSelector((state: RootState) => state.user.loading);
+    const errorFixedCosts = useSelector((state: RootState) => state.user.error);
     const { data: allItems, error: errorQuery, loading: loadingFireStore } = UseFirestoreQuery<FixedCostsModel>(
         {collectionName: tableKey.FixedCosts, useCache:true});
 
@@ -93,12 +104,12 @@ export function useFixedCostsLogic({ values, setFieldValue, resetForm }: UseFixe
 
             await batch.commit();
             dispatch(setLoading(false))
-            setOpenSnackBarSuccess(true)
+            setOpenSnackBar(prev => ({...prev, success: true}))
         } catch (error) {
-            console.log(error)
-            dispatch(setError('Erro ao salvar, tente novamente.'))
-            setOpenSnackBar(true)
+            dispatch(setError('Erro ao salvar, verifique sua conexão e tente novamente.'))
+            setOpenSnackBar(prev => ({...prev, error: true}))
             dispatch(setLoading(false))
+            throw error;
         }
     };
     /**
@@ -107,7 +118,6 @@ export function useFixedCostsLogic({ values, setFieldValue, resetForm }: UseFixe
     const formatExpenseCard = () => {
         if(selected){
             if (JSON.stringify(selected) !== JSON.stringify(values)){
-                console.log('values', values)
                 const updatedValues = {
                     ...values,
                     dayVencimento: dayjs(values.dayVencimento).format('DD/MM/YYYY'),
@@ -115,9 +125,7 @@ export function useFixedCostsLogic({ values, setFieldValue, resetForm }: UseFixe
                     stRegistro: values.stRegistro === SituacaoRegistroEnum.CREATE ? 
                     SituacaoRegistroEnum.CREATE : SituacaoRegistroEnum.UPDATE,
                 };
-                console.log('values11', updatedValues)
                 const updatedList = fixedCostsList.map(cost => cost.id === updatedValues.id ? updatedValues : cost);
-                console.log('valuplist', updatedList)
                 setFixedCostsList(updatedList);
             }
         } else {
@@ -128,7 +136,6 @@ export function useFixedCostsLogic({ values, setFieldValue, resetForm }: UseFixe
                 dtVigencia: values.dtIndefinida ? '' : dayjs(values.dtVigencia).format('DD/MM/YYYY'),
                 stRegistro: SituacaoRegistroEnum.CREATE
             };
-            console.log('newFixedCost', newFixedCost)
             setFixedCostsList([...fixedCostsList, newFixedCost]);
         }
         setSelected(undefined)
@@ -137,6 +144,8 @@ export function useFixedCostsLogic({ values, setFieldValue, resetForm }: UseFixe
     }
 
     const handleDelete = (expense: FixedCostsModel) => {
+        setDirtyLocal(true);
+        setShowModalDelete(undefined)
         if (expense.stRegistro === SituacaoRegistroEnum.CREATE) {
             setFixedCostsList(fixedCostsList.filter(cost => cost.id !== expense.id));
         } else {
@@ -178,8 +187,6 @@ export function useFixedCostsLogic({ values, setFieldValue, resetForm }: UseFixe
         addFixedCost,
         formatExpenseCard,
         errorFixedCosts,
-        openSnackBarSuccess,
-        setOpenSnackBarSuccess,
         errorQuery,
         fixedCostsList,
         handleExpenseClick,

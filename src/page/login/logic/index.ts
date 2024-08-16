@@ -1,20 +1,32 @@
 import { auth } from "@/config/firebase";
-import { setLoading, setUser, setUserLogado, setError, State } from "@/store/reducer/reducer";
+import { setLoading, setUser, setUserLogado, setError } from "@/store/reducer/reducer";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { LoginModel } from "../model";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
-
+import { RootState } from "@/store/reducer/store";
+import { StateSnackBar } from "@/components/customsnackbar";
 
 function useLoginLogic() {
-
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    const [openError, setOpenError] = useState<boolean>(false);
-    const loading = useSelector((state: State) => state.user.loading)
-
+    const [openSnackBar, setOpenSnackBar] = useState<StateSnackBar>({error: false, success: false});
+    const [initialLoad, setInitialLoad] = useState<boolean>(true);
+    const loading = useSelector((state: RootState) => state.user.loading)
+    const userLogado = useSelector((state: RootState) => state.user.userLogado)
+    useEffect(() => {
+        const checkAuthStatus = async () => {
+            if (userLogado) {
+                navigate('/home');
+            } else {
+                setInitialLoad(false);
+            }
+        };
+        checkAuthStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [navigate]);
     async function checkLogin(values: LoginModel) {
         try {
             dispatch(setLoading(true));
@@ -35,16 +47,16 @@ function useLoginLogic() {
         } catch (error) {
             if (error instanceof Error) {
                 dispatch(setError("E-mail ou senha incorreto"));
-                setOpenError(true)
+                setOpenSnackBar(prev => ({...prev, error: true}))
             } else {
-                dispatch(setError('Erro inesperado'));
-                setOpenError(true)
+                dispatch(setError('Erro, verifique sua conexão e tente novamente.'));
+                setOpenSnackBar(prev => ({...prev, error: true}))
             }
         } finally {
             dispatch(setLoading(false));
         }
     }
-    return {checkLogin, openError, setOpenError, loading}
+    return {checkLogin, openSnackBar, setOpenSnackBar, loading, initialLoad}
 }
 
 export default useLoginLogic

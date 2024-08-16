@@ -1,3 +1,4 @@
+import { StateSnackBar } from "@/components/customsnackbar";
 import { auth } from "@/config/firebase";
 import { sendEmailVerification } from "firebase/auth";
 import { useState, useEffect } from "react";
@@ -5,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 
 
 function useVerifiEmailLogic() {
-    const [open, setOpen] = useState<boolean>(false);
+    const [open, setOpen] = useState<StateSnackBar>({error: false, success: false});
     const [isButtonDisabled, setIsButtonDisabled] = useState<boolean>(false);
     const [timeLeft, setTimeLeft] = useState<number>(0);
     const navigate = useNavigate();
@@ -27,10 +28,14 @@ function useVerifiEmailLogic() {
     const resendVerificationEmail = async () => {
         const user = auth.currentUser;
         if (user) {
-            await user.reload();
-            await sendEmailVerification(user);
-            setOpen(true);
-            startCountdown();
+            try {
+                await user.reload();
+                await sendEmailVerification(user);
+                setOpen(prev => ({...prev, success: true}));
+                startCountdown();
+            } catch (error) {
+                setOpen(prev => ({...prev, error: true}));
+            }
         }
     };
 

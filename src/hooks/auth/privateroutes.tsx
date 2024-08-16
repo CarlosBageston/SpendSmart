@@ -1,10 +1,10 @@
 // src/hooks/auth/privateroutes.tsx
 import { Navigate, Outlet } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-import { State } from '@/store/reducer/reducer';
+import { RootState } from '@/store/reducer/store';
 
 const PrivateRoute = () => {
-    const isAuthenticated = useSelector((store: State) => store.user.userLogado)
+    const isAuthenticated = useSelector((store: RootState) => store.user.userLogado)
     if (!isAuthenticated) {
         return <Navigate to="/" replace />;
     }

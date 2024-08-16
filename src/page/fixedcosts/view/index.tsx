@@ -13,9 +13,19 @@ import CustomDatePicker from '@/components/customdatepicker';
 import ExpenseCard from '@/page/fixedcosts/view/expensecard';
 import { useFixedCostsLogic } from '../logic';
 import { SituacaoRegistroEnum } from '@/constants/enums/situacaoregistroenum';
+import { useDispatch } from 'react-redux';
+import { changeDirty } from '@/store/reducer/contextslice';
+import { useEffect, useState } from 'react';
+import { useSaveFunction } from '@/hooks/useSaveFunction';
+import StanderdModal from '@/components/standerdModal';
 
 
 function FixedCosts() {
+    const dispatch = useDispatch();
+    const { setSaveFunction } = useSaveFunction();
+    const [dirtyLocal, setDirtyLocal] = useState<boolean>(false);
+    const [showModalDelete, setShowModalDelete] = useState<FixedCostsModel>();
+
     const validationSchema = Yup.object().shape({
         dsFixedCosts: Yup.string().required('Descrição é obrigatória'),
         dayVencimento: Yup.string().required('Dia de vencimento é obrigatório'),
@@ -27,7 +37,7 @@ function FixedCosts() {
         }),
     });
 
-    const { values, handleBlur, handleChange, handleSubmit, touched, errors, resetForm, setFieldValue } = useFormik({
+    const { values, handleBlur, handleChange, handleSubmit, touched, errors, resetForm, setFieldValue, dirty } = useFormik({
         initialValues: {
             dsFixedCosts: '',
             dtIndefinida: false,
@@ -37,7 +47,10 @@ function FixedCosts() {
         validationSchema,
         validateOnBlur: true,
         validateOnChange: true,
-        onSubmit: () => formatExpenseCard(),
+        onSubmit: () => {
+            formatExpenseCard();
+            setDirtyLocal(true)
+        },
     });
 
     const {
@@ -49,15 +62,19 @@ function FixedCosts() {
         addFixedCost,
         errorFixedCosts,
         formatExpenseCard,
-        openSnackBarSuccess,
-        setOpenSnackBarSuccess,
         errorQuery,
         fixedCostsList,
         handleExpenseClick,
         selected,
         handleDelete,
         loadingFireStore
-    } = useFixedCostsLogic({ values, setFieldValue, resetForm });
+    } = useFixedCostsLogic({ values, setFieldValue, resetForm, setDirtyLocal, setShowModalDelete });
+
+    useEffect(() => {
+        dispatch(changeDirty(dirty || dirtyLocal));
+        setSaveFunction(addFixedCost);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [dirty, dirtyLocal]);
 
     return (
         <ScreenLayout
@@ -65,7 +82,7 @@ function FixedCosts() {
             buttonHref='/home'
             buttonTitle='Cadastrar'
             loadingButton={loading}
-            onClickButton={() => addFixedCost()}
+            onClickButton={() => { addFixedCost().then(() => setDirtyLocal(false)) }}
             paddingButton='0px 30px 30px 30px'
         >
             <GridContainer>
@@ -137,7 +154,7 @@ function FixedCosts() {
                                         key={index}
                                         expense={expense}
                                         onClickEdit={() => handleExpenseClick(expense)}
-                                        onClickDelete={() => handleDelete(expense)}
+                                        onClickDelete={() => setShowModalDelete(expense)}
                                     />
                                 )
                             ))
@@ -145,16 +162,25 @@ function FixedCosts() {
                     </GridItem>
                 </DivExpendCard>
             </GridContainer>
+            <StanderdModal
+                title='Clicando em EXCLUIR você estará removendo esse item da lista.'
+                message='Tem certeza que deseja realizar esta ação?'
+                labelButtonConfirm='EXCLUIR'
+                labelButtonClose='CANCELAR'
+                onConfirm={() => showModalDelete && handleDelete(showModalDelete)}
+                onClose={() => setShowModalDelete(undefined)}
+                open={showModalDelete !== undefined}
+            />
             <CustomSnackBar
                 message={errorQuery ? errorQuery : errorFixedCosts}
-                open={errorQuery !== null || openSnackBar}
+                open={errorQuery !== null || openSnackBar.error}
                 setOpen={setOpenSnackBar}
                 errorAlert
             />
             <CustomSnackBar
                 message={"Cadastrado Com Sucesso"}
-                open={openSnackBarSuccess}
-                setOpen={setOpenSnackBarSuccess}
+                open={openSnackBar.success}
+                setOpen={setOpenSnackBar}
             />
         </ScreenLayout>
     );
