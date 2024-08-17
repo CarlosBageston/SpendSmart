@@ -10,6 +10,9 @@ export const UseTableKeys = () => {
     }
 
     return {
-        FixedCosts: `UsersData/${user.uid}/FixedCosts`
+        FixedCosts: `UsersData/${user.uid}/FixedCosts`,
+        Balance: `UsersData/${user.uid}/Balance`,
+        Payments: `UsersData/${user.uid}/Payments`,
+        Income: `UsersData/${user.uid}/Income`
     };
 };

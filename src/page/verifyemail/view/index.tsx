@@ -44,8 +44,7 @@ function VerifyEmail() {
                         href='/'
                     />
                 </GridItem>
-                <CustomSnackBar message='Reenviado E-mail' open={open.success} setOpen={setOpen} />
-                <CustomSnackBar message='Erro ao Reenviado E-mail, tente novamente' open={open.error} setOpen={setOpen} errorAlert />
+                <CustomSnackBar message={open.error ? 'Erro ao Reenviado E-mail, tente novamente' : 'Reenviado E-mail'} open={open} setOpen={setOpen} />
             </GridContainer>
         </ScreenLayout>
     );

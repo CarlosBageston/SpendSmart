@@ -37,13 +37,13 @@ function FixedCosts() {
         }),
     });
 
-    const { values, handleBlur, handleChange, handleSubmit, touched, errors, resetForm, setFieldValue, dirty } = useFormik({
+    const { values, handleBlur, handleChange, handleSubmit, touched, errors, resetForm, setFieldValue, dirty } = useFormik<FixedCostsModel>({
         initialValues: {
             dsFixedCosts: '',
             dtIndefinida: false,
             dayVencimento: '',
             dtVigencia: '',
-        } as FixedCostsModel,
+        },
         validationSchema,
         validateOnBlur: true,
         validateOnChange: true,
@@ -62,7 +62,6 @@ function FixedCosts() {
         addFixedCost,
         errorFixedCosts,
         formatExpenseCard,
-        errorQuery,
         fixedCostsList,
         handleExpenseClick,
         selected,
@@ -172,14 +171,8 @@ function FixedCosts() {
                 open={showModalDelete !== undefined}
             />
             <CustomSnackBar
-                message={errorQuery ? errorQuery : errorFixedCosts}
-                open={errorQuery !== null || openSnackBar.error}
-                setOpen={setOpenSnackBar}
-                errorAlert
-            />
-            <CustomSnackBar
-                message={"Cadastrado Com Sucesso"}
-                open={openSnackBar.success}
+                message={errorFixedCosts ? errorFixedCosts : "Cadastrado Com Sucesso"}
+                open={openSnackBar}
                 setOpen={setOpenSnackBar}
             />
         </ScreenLayout>

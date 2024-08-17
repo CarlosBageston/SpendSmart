@@ -60,7 +60,7 @@ export function useFixedCostsLogic({ values, setFieldValue, resetForm, setDirtyL
     const tableKey = UseTableKeys();
     const loading = useSelector((state: RootState) => state.user.loading);
     const errorFixedCosts = useSelector((state: RootState) => state.user.error);
-    const { data: allItems, error: errorQuery, loading: loadingFireStore } = UseFirestoreQuery<FixedCostsModel>(
+    const { data: allItems, loading: loadingFireStore } = UseFirestoreQuery<FixedCostsModel>(
         {collectionName: tableKey.FixedCosts, useCache:true});
 
     useEffect(() => {
@@ -187,7 +187,6 @@ export function useFixedCostsLogic({ values, setFieldValue, resetForm, setDirtyL
         addFixedCost,
         formatExpenseCard,
         errorFixedCosts,
-        errorQuery,
         fixedCostsList,
         handleExpenseClick,
         selected,

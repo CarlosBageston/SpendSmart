@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 interface CustomInputProps {
     label: string;
-    value: string;
+    value: string | number | null;
     onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
     keyboardType?: string;
     autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';

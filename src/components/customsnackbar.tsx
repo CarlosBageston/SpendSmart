@@ -1,10 +1,12 @@
 import { Alert, IconButton, Snackbar } from "@mui/material";
 import { Dispatch, SetStateAction, useEffect } from "react";
 import CloseIcon from '@mui/icons-material/Close';
+import { useDispatch } from "react-redux";
+import { setError } from "@/store/reducer/reducer";
 
 interface SnackBarProps {
     message: string;
-    open: boolean;
+    open: StateSnackBar;
     setOpen: Dispatch<SetStateAction<StateSnackBar>>;
     errorAlert?: boolean
 }
@@ -14,11 +16,14 @@ export interface StateSnackBar {
     success: boolean;
 }
 
-function CustomSnackBar({ message, open, setOpen, errorAlert }: SnackBarProps) {
+function CustomSnackBar({ message, open, setOpen }: SnackBarProps) {
+    const dispatch = useDispatch();
+
     useEffect(() => {
         if (open) {
             const timer = setTimeout(() => {
                 setOpen({ error: false, success: false });
+                dispatch(setError(''))
             }, 6000);
 
             return () => clearTimeout(timer);
@@ -36,12 +41,12 @@ function CustomSnackBar({ message, open, setOpen, errorAlert }: SnackBarProps) {
                 vertical: 'bottom',
                 horizontal: 'left',
             }}
-            open={open}
+            open={open.error || open.success}
             autoHideDuration={6000}
             message={message}
         >
             <Alert
-                severity={errorAlert ? "error" : "success"}
+                severity={open.error ? "error" : "success"}
                 sx={{ width: '65%' }}
                 action={
                     <IconButton
