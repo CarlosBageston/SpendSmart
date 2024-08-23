@@ -1,50 +1,73 @@
 import React from 'react';
-import { MenuItem, Select, FormControl, InputLabel } from '@mui/material';
+import { Select, MenuItem, FormControl, InputLabel, SelectChangeEvent, FormHelperText } from '@mui/material';
 import styled from 'styled-components';
 
-export interface ItemsSelectProps {
-    label: string;
-    value: string | number;
-}
-
-interface CustomSelectProps {
-    selectedValue: ItemsSelectProps;
-    onValueChange: (itemValue: ItemsSelectProps) => void;
-    items: ItemsSelectProps[];
+interface CustomSelectProps<T> {
     label?: string;
+    variant?: 'standard' | 'filled' | 'outlined';
+    name?: string;
+    placeholder?: string;
+    onBlur?: (event: React.FocusEvent<HTMLInputElement>) => void;
+    error?: boolean; // Adicionado para tratamento de erro
+    helperText?: string; // Adicionado para exibir mensagem de erro
+    selectedValue: T | null;
+    items: T[];
+    getLabel: (option: T) => string;
+    getValue: (option: T) => string | number;
+    onValueChange: (event: T) => void;
     style?: React.CSSProperties;
+    [key: string]: any;
 }
 
-const CustomSelect: React.FC<CustomSelectProps> = ({ selectedValue, onValueChange, items, label, style }) => {
+const CustomSelect = <T,>({
+    label,
+    variant = 'standard',
+    name,
+    onBlur,
+    error = false,
+    helperText = '', // Inicializado como uma string vazia
+    selectedValue,
+    items,
+    getLabel,
+    getValue,
+    onValueChange,
+    style,
+    ...rest
+}: CustomSelectProps<T>) => {
+
+    const handleChange = (event: SelectChangeEvent<any>) => {
+        const selectedOption = items.find(opt => getValue(opt) === event.target.value);
+        if (selectedOption) {
+            onValueChange(selectedOption);
+        }
+    };
+
     return (
-        <FormControlStyled variant="standard">
+        <FormControlStyled variant={variant} error={error}>
             {label && <InputLabelStyled>{label}</InputLabelStyled>}
             <StyledSelect
-                value={selectedValue.value}
-                onChange={(event) => {
-                    const selectedItem = items.find(item => String(item.value) === String(event.target.value));
-                    if (selectedItem) {
-                        onValueChange(selectedItem);
-                    }
-                }}
                 label={label}
-                style={style ? style : { width: '100%', maxWidth: '500px' }}
+                value={selectedValue ? getValue(selectedValue) : ''}
+                onChange={handleChange}
+                onBlur={onBlur}
+                displayEmpty
+                style={style}
+                inputProps={{ name }}
+                {...rest}
             >
-                {items.map((item, index) => (
-                    <MenuItem key={index} value={item.value}>
-                        {item.label}
+                {items.map((option, index) => (
+                    <MenuItem key={index} value={getValue(option)}>
+                        {getLabel(option)}
                     </MenuItem>
                 ))}
             </StyledSelect>
+            {error && helperText && <FormHelperText>{helperText}</FormHelperText>}
         </FormControlStyled>
     );
 };
 
 const FormControlStyled = styled(FormControl)`
     width: 80%;
-    .css-m5hdmq-MuiInputBase-root-MuiInput-root-MuiSelect-root:after {
-        border-bottom: 2px solid ${props => props.theme.paletteColor.primaryGreen};
-    }
 `;
 
 const InputLabelStyled = styled(InputLabel)`
@@ -52,16 +75,13 @@ const InputLabelStyled = styled(InputLabel)`
 `;
 
 const StyledSelect = styled(Select)`
-    border-radius: 10px;
     width: 100%;
     .MuiOutlinedInput-notchedOutline {
         border-color: ${props => props.theme.paletteColor.lightGreen};
     }
-
     &:hover .MuiOutlinedInput-notchedOutline {
         border-color: ${props => props.theme.paletteColor.primaryGreen};
     }
-
     .MuiSelect-select {
         padding: 10px;
     }

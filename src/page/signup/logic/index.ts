@@ -2,10 +2,12 @@ import { db, auth } from "@/config/firebase";
 import { collection, getDocs, query, where, addDoc } from "firebase/firestore";
 import { createUserWithEmailAndPassword, sendEmailVerification, User } from "firebase/auth";
 import { useDispatch, useSelector } from "react-redux";
-import { setError, setLoading, State } from "@/store/reducer/reducer";
+import { setError, setLoading } from "@/store/reducer/reducer";
+import { RootState } from "@/store/reducer/store";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { SignupModel } from "../model";
+import { StateSnackBar } from "@/components/customsnackbar";
 
 /**
  * Hook que contém a lógica para o cadastro de usuário.
@@ -14,8 +16,8 @@ import { SignupModel } from "../model";
 export const useSignupLogic = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
-    const [openError, setOpenError] = useState<boolean>(false);
-    const loading = useSelector((state: State) => state.user.loading)
+    const [openSnackBar, setOpenSnackBar] = useState<StateSnackBar>({error: false, success: false});
+    const loading = useSelector((state: RootState) => state.user.loading)
 
     /**
      * Verifica se o e-mail já está registrado na coleção de usuários do Firestore.
@@ -73,7 +75,7 @@ export const useSignupLogic = () => {
             const emailExists = await checkIfEmailExists(values.email);
             if (emailExists) {
                 dispatch(setError("Já existe um usuário com esse e-mail"));
-                setOpenError(true);
+                setOpenSnackBar(prev => ({...prev, error: true}));
                 return;
             }
 
@@ -84,11 +86,11 @@ export const useSignupLogic = () => {
             navigate('/verify-email');
         } catch (error) {
             dispatch(setError("Erro ao criar conta, tente novamente"));
-            setOpenError(true);
+            setOpenSnackBar(prev => ({...prev, error: true}));
         } finally {
             dispatch(setLoading(false))
         }
     };
 
-    return { signupUser, openError, setOpenError, loading };
+    return { signupUser, openSnackBar, setOpenSnackBar, loading };
 };

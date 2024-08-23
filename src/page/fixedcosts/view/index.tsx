@@ -13,9 +13,20 @@ import CustomDatePicker from '@/components/customdatepicker';
 import ExpenseCard from '@/page/fixedcosts/view/expensecard';
 import { useFixedCostsLogic } from '../logic';
 import { SituacaoRegistroEnum } from '@/constants/enums/situacaoregistroenum';
+import { useDispatch } from 'react-redux';
+import { changeDirty } from '@/store/reducer/contextslice';
+import { useEffect, useState } from 'react';
+import { useSaveFunction } from '@/hooks/useSaveFunction';
+import StanderdModal from '@/components/standerdModal';
+import { formatDescription } from '@/utils/formattedString';
 
 
 function FixedCosts() {
+    const dispatch = useDispatch();
+    const { setSaveFunction } = useSaveFunction();
+    const [dirtyLocal, setDirtyLocal] = useState<boolean>(false);
+    const [showModalDelete, setShowModalDelete] = useState<FixedCostsModel>();
+
     const validationSchema = Yup.object().shape({
         dsFixedCosts: Yup.string().required('Descrição é obrigatória'),
         dayVencimento: Yup.string().required('Dia de vencimento é obrigatório'),
@@ -27,17 +38,21 @@ function FixedCosts() {
         }),
     });
 
-    const { values, handleBlur, handleChange, handleSubmit, touched, errors, resetForm, setFieldValue } = useFormik({
+    const { values, handleBlur, handleSubmit, touched, errors, resetForm, setFieldValue, dirty } = useFormik<FixedCostsModel>({
         initialValues: {
             dsFixedCosts: '',
             dtIndefinida: false,
             dayVencimento: '',
             dtVigencia: '',
-        } as FixedCostsModel,
+            dsFixedCostsFormatted: ''
+        },
         validationSchema,
         validateOnBlur: true,
         validateOnChange: true,
-        onSubmit: () => formatExpenseCard(),
+        onSubmit: () => {
+            formatExpenseCard();
+            setDirtyLocal(true)
+        },
     });
 
     const {
@@ -49,15 +64,18 @@ function FixedCosts() {
         addFixedCost,
         errorFixedCosts,
         formatExpenseCard,
-        openSnackBarSuccess,
-        setOpenSnackBarSuccess,
-        errorQuery,
         fixedCostsList,
         handleExpenseClick,
         selected,
         handleDelete,
-        loadingFireStore
-    } = useFixedCostsLogic({ values, setFieldValue, resetForm });
+        loadingAllItem
+    } = useFixedCostsLogic({ values, setFieldValue, resetForm, setDirtyLocal, setShowModalDelete });
+
+    useEffect(() => {
+        dispatch(changeDirty(dirty || dirtyLocal));
+        setSaveFunction(addFixedCost);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [dirty, dirtyLocal]);
 
     return (
         <ScreenLayout
@@ -65,7 +83,7 @@ function FixedCosts() {
             buttonHref='/home'
             buttonTitle='Cadastrar'
             loadingButton={loading}
-            onClickButton={() => addFixedCost()}
+            onClickButton={() => { addFixedCost().then(() => setDirtyLocal(false)) }}
             paddingButton='0px 30px 30px 30px'
         >
             <GridContainer>
@@ -74,7 +92,10 @@ function FixedCosts() {
                         label='Descrição'
                         name='dsFixedCosts'
                         value={values.dsFixedCosts}
-                        onChange={handleChange}
+                        onChange={(e) => {
+                            setFieldValue('dsFixedCosts', e.target.value);
+                            setFieldValue('dsFixedCostsFormatted', formatDescription(e.target.value));
+                        }}
                         onBlur={handleBlur}
                         error={touched.dsFixedCosts && Boolean(errors.dsFixedCosts)}
                         helperText={touched.dsFixedCosts && errors.dsFixedCosts}
@@ -103,7 +124,7 @@ function FixedCosts() {
                         value={values.dtVigencia}
                     />
                 </GridItem>
-                <GridItem alignItems='center' paddingTopMuiGrid='10px' marginTop={'-30px'}>
+                <GridItem alignItems='center' paddingTopMuiGrid='5px' marginTop={'-30px'}>
                     <Typography>Data de término Indefinida?</Typography>
                     <Checkbox
                         name='dtIndefinida'
@@ -114,7 +135,7 @@ function FixedCosts() {
                         }}
                     />
                 </GridItem>
-                <GridItem>
+                <GridItem paddingTopMuiGrid='10px'>
                     <CustomButton
                         colorBackground='#2c95ff'
                         colorLabel='#f1f1f1'
@@ -126,7 +147,7 @@ function FixedCosts() {
                 </GridItem>
                 <DivExpendCard>
                     <GridItem direction="column" marginLeft="20px">
-                        {loadingFireStore ? (
+                        {loadingAllItem ? (
                             <TitleCircule>
                                 <CircularProgress size={25} />
                             </TitleCircule>
@@ -137,7 +158,7 @@ function FixedCosts() {
                                         key={index}
                                         expense={expense}
                                         onClickEdit={() => handleExpenseClick(expense)}
-                                        onClickDelete={() => handleDelete(expense)}
+                                        onClickDelete={() => setShowModalDelete(expense)}
                                     />
                                 )
                             ))
@@ -145,16 +166,19 @@ function FixedCosts() {
                     </GridItem>
                 </DivExpendCard>
             </GridContainer>
-            <CustomSnackBar
-                message={errorQuery ? errorQuery : errorFixedCosts}
-                open={errorQuery !== null || openSnackBar}
-                setOpen={setOpenSnackBar}
-                errorAlert
+            <StanderdModal
+                title='Clicando em EXCLUIR você estará removendo esse item da lista.'
+                message='Tem certeza que deseja realizar esta ação?'
+                labelButtonConfirm='EXCLUIR'
+                labelButtonClose='CANCELAR'
+                onConfirm={() => showModalDelete && handleDelete(showModalDelete)}
+                onClose={() => setShowModalDelete(undefined)}
+                open={showModalDelete !== undefined}
             />
             <CustomSnackBar
-                message={"Cadastrado Com Sucesso"}
-                open={openSnackBarSuccess}
-                setOpen={setOpenSnackBarSuccess}
+                message={errorFixedCosts ? errorFixedCosts : "Cadastrado Com Sucesso"}
+                open={openSnackBar}
+                setOpen={setOpenSnackBar}
             />
         </ScreenLayout>
     );

@@ -4,7 +4,7 @@ import styled from 'styled-components';
 
 interface CustomInputProps {
     label: string;
-    value: string;
+    value: string | number | null;
     onChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
     keyboardType?: string;
     autoCapitalize?: 'none' | 'sentences' | 'words' | 'characters';
@@ -32,6 +32,9 @@ const CustomInput: React.FC<CustomInputProps> = ({
             autoCapitalize={autoCapitalize}
             variant="standard"
             style={style ? style : { width: '80%', maxWidth: '500px' }}
+            InputLabelProps={{
+                shrink: value !== undefined && value !== null && value !== '',
+            }}
             {...rest}
         />
     );

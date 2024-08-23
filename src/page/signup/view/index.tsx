@@ -5,7 +5,7 @@ import ScreenLayout from "@/components/scheenLayout";
 import * as Yup from 'yup';
 import { useFormik } from 'formik';
 import { SignupModel } from '@/page/signup/model';
-import { State } from "@/store/reducer/reducer";
+import { RootState } from "@/store/reducer/store";
 import { useSelector } from "react-redux";
 import CustomSnackBar from "@/components/customsnackbar";
 import { useSignupLogic } from "../logic";
@@ -13,8 +13,8 @@ import { useSignupLogic } from "../logic";
 
 
 function Signup() {
-    const errorSignup = useSelector((state: State) => state.user.error);
-    const { signupUser, openError, setOpenError, loading } = useSignupLogic();
+    const errorSignup = useSelector((state: RootState) => state.user.error);
+    const { signupUser, openSnackBar, setOpenSnackBar, loading } = useSignupLogic();
 
 
     const initialValues: SignupModel = {
@@ -120,7 +120,7 @@ function Signup() {
                         helperText={touched.confirmPassword && errors.confirmPassword}
                     />
                 </GridItem>
-                <CustomSnackBar message={errorSignup} open={openError} setOpen={setOpenError} errorAlert />
+                <CustomSnackBar message={errorSignup} open={openSnackBar} setOpen={setOpenSnackBar} />
             </GridContainer>
         </ScreenLayout>
     )

@@ -8,6 +8,7 @@ import { SituacaoRegistroEnum } from "@enums/situacaoregistroenum";
 export interface FixedCostsModel {
     id?: string;
     dsFixedCosts: string;
+    dsFixedCostsFormatted: string;
     dayVencimento: string;
     dtVigencia: string;
     dtIndefinida: boolean;

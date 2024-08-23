@@ -1,21 +1,23 @@
 import { useSelector } from 'react-redux';
-import { Typography } from '@mui/material';
+import { CircularProgress, Typography } from '@mui/material';
 import ScreenLayout from '@/components/scheenLayout';
 import CustomInput from '@/components/custominput';
 import GridContainer from '@/components/gridcontainer';
 import GridItem from '@/components/griditem';
 import CustomButton from '@/components/custombutton';
-import { State } from '@/store/reducer/reducer';
+import { RootState } from '@/store/reducer/store';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { LoginModel } from '@/page/login/model';
 import CustomSnackBar from '@/components/customsnackbar';
 import useLoginLogic from '../logic';
+import { Box } from '@/store/assets/loadingStyle';
 
 
 function Login() {
-    const errorLogin = useSelector((state: State) => state.user.error);
-    const { checkLogin, openError, setOpenError, loading } = useLoginLogic();
+    const errorLogin = useSelector((state: RootState) => state.user.error);
+    const { checkLogin, setOpenSnackBar, openSnackBar, loading, initialLoad } = useLoginLogic();
+
 
     // Validação do formulário com Yup
     const validationSchema = Yup.object().shape({
@@ -39,6 +41,9 @@ function Login() {
         onSubmit: checkLogin,
     });
 
+    if (initialLoad) {
+        return <Box><CircularProgress /></Box>;
+    }
 
     return (
         <>
@@ -98,7 +103,7 @@ function Login() {
                         />
                     </GridItem>
                     <GridItem>
-                        <CustomSnackBar message={errorLogin} open={openError} setOpen={setOpenError} errorAlert />
+                        <CustomSnackBar message={errorLogin} open={openSnackBar} setOpen={setOpenSnackBar} />
                     </GridItem>
                 </GridContainer>
             </ScreenLayout>

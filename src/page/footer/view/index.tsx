@@ -1,45 +1,46 @@
-import { FC } from 'react';
 import { BottomNavigation, BottomNavigationAction } from '@mui/material';
 import { Home, MonetizationOn } from '@mui/icons-material';
-import { useLocation, Link } from 'react-router-dom';
-import styled from 'styled-components';
+import { StyledFooter } from '@/page/footer/style';
+import StanderdModal from '@/components/standerdModal';
+import useFooterLogic from '../logic';
 
-const StyledFooter = styled.footer`
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  width: 100%;
-  background-color: ${({ theme }) => theme.paletteColor.lightGreen};
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-`;
 
-const Footer: FC = () => {
+function Footer() {
+
+    const { handleCancelNavigation, handleConfirmNavigation, handleNavigate, location, showModal } = useFooterLogic();
 
     return (
         <StyledFooter>
-            <BottomNavigation
-                value={useLocation().pathname}
-                showLabels
-            >
+            <BottomNavigation value={location.pathname} showLabels>
                 <BottomNavigationAction
-                    component={Link}
-                    to='/home'
+                    component="button"
+                    onClick={() => handleNavigate('/home')}
                     label="Home"
                     value={'/home'}
                     icon={<Home />}
                 />
                 <BottomNavigationAction
-                    component={Link}
-                    to='/fixed-costs'
-                    value={'/fixed-costs'}
+                    component="button"
+                    onClick={() => handleNavigate('/fixed-costs')}
                     label="Despesas Fixas"
+                    value={'/fixed-costs'}
                     icon={<MonetizationOn />}
-
                 />
             </BottomNavigation>
+
+            {showModal && (
+                <StanderdModal
+                    open={showModal}
+                    onClose={handleCancelNavigation}
+                    onConfirm={handleConfirmNavigation}
+                    title='Você tem alterações não salvas'
+                    message='Gostaria de salvar antes de sair?'
+                    labelButtonClose='Cancelar'
+                    labelButtonConfirm='Sair e Salvar'
+                />
+            )}
         </StyledFooter>
     );
-};
+}
 
 export default Footer;
