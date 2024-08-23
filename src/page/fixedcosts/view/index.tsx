@@ -18,6 +18,7 @@ import { changeDirty } from '@/store/reducer/contextslice';
 import { useEffect, useState } from 'react';
 import { useSaveFunction } from '@/hooks/useSaveFunction';
 import StanderdModal from '@/components/standerdModal';
+import { formatDescription } from '@/utils/formattedString';
 
 
 function FixedCosts() {
@@ -37,12 +38,13 @@ function FixedCosts() {
         }),
     });
 
-    const { values, handleBlur, handleChange, handleSubmit, touched, errors, resetForm, setFieldValue, dirty } = useFormik<FixedCostsModel>({
+    const { values, handleBlur, handleSubmit, touched, errors, resetForm, setFieldValue, dirty } = useFormik<FixedCostsModel>({
         initialValues: {
             dsFixedCosts: '',
             dtIndefinida: false,
             dayVencimento: '',
             dtVigencia: '',
+            dsFixedCostsFormatted: ''
         },
         validationSchema,
         validateOnBlur: true,
@@ -66,7 +68,7 @@ function FixedCosts() {
         handleExpenseClick,
         selected,
         handleDelete,
-        loadingFireStore
+        loadingAllItem
     } = useFixedCostsLogic({ values, setFieldValue, resetForm, setDirtyLocal, setShowModalDelete });
 
     useEffect(() => {
@@ -90,7 +92,10 @@ function FixedCosts() {
                         label='Descrição'
                         name='dsFixedCosts'
                         value={values.dsFixedCosts}
-                        onChange={handleChange}
+                        onChange={(e) => {
+                            setFieldValue('dsFixedCosts', e.target.value);
+                            setFieldValue('dsFixedCostsFormatted', formatDescription(e.target.value));
+                        }}
                         onBlur={handleBlur}
                         error={touched.dsFixedCosts && Boolean(errors.dsFixedCosts)}
                         helperText={touched.dsFixedCosts && errors.dsFixedCosts}
@@ -142,7 +147,7 @@ function FixedCosts() {
                 </GridItem>
                 <DivExpendCard>
                     <GridItem direction="column" marginLeft="20px">
-                        {loadingFireStore ? (
+                        {loadingAllItem ? (
                             <TitleCircule>
                                 <CircularProgress size={25} />
                             </TitleCircule>

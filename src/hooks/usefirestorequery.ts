@@ -1,91 +1,143 @@
-import { useState, useEffect, useRef } from 'react';
-import { collection, query, getDocs, QueryConstraint, DocumentData } from 'firebase/firestore';
+import { 
+    collection, 
+    query, 
+    getDocs, 
+    doc, 
+    addDoc, 
+    updateDoc, 
+    deleteDoc, 
+    QueryConstraint, 
+    DocumentData 
+} from 'firebase/firestore';
 import { db } from '@/config/firebase';
+import { Dispatch } from 'redux';
+import { setAddItemLoading, setDeleteItemLoading, setGetAllItemsLoading, setGetItemsByQueryLoading, setGetSumLoading, setUpdateItemLoading } from '@/store/reducer/loadingSlice';
 
-interface UseFirestoreQueryParams {
-    /**
-     * Nome da coleção no Firestore a ser consultada.
-     */
-    collectionName: string;
-
-    /**
-     * Restrições opcionais para a consulta, como `where`, `orderBy`, etc.
-     * @example
-     * // Exemplo de uso de constraints para buscar documentos onde o campo 'ativo' seja verdadeiro
-     * const constraints = [
-     *   where('ativo', '==', true)
-     * ];
-     */
-    constraints?: QueryConstraint[];
-
-    /**
-     * Define se o resultado da consulta deve ser armazenado em cache.
-     * @default false
-     */
-    useCache?: boolean;
+// Função para obter todos os itens de uma coleção
+export async function getAllItems<T = DocumentData>(
+    collectionName: string,
+    dispatch: Dispatch
+): Promise<T[]> {
+    dispatch(setGetAllItemsLoading(true));
+    try {
+        const collectionRef = collection(db, collectionName);
+        const querySnapshot = await getDocs(collectionRef);
+        return querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+        } as T));
+    } catch (error) {
+        console.error('Erro ao buscar todos os itens:', error);
+        throw new Error('Erro ao buscar todos os itens.');
+    } finally {
+        dispatch(setGetAllItemsLoading(false));
+    }
 }
 
-/**
- * Hook personalizado para consultar dados de uma coleção do Firestore.
- *
- * @template T - O tipo dos documentos retornados.
- * @param {UseFirestoreQueryParams} params - Os parâmetros para a consulta.
- * @returns {object} - Um objeto contendo os dados da consulta, o estado de carregamento e possíveis erros.
- *
- * @example
- * // Exemplo de uso do hook para buscar uma coleção 'usuarios' onde o campo 'ativo' seja verdadeiro
- * const { data, loading, error } = UseFirestoreQuery<User>({
- *   collectionName: 'usuarios',
- *   constraints: [where('ativo', '==', true)],
- *   useCache: true
- * });
- */
-export function UseFirestoreQuery<T = DocumentData>({
-    collectionName,
-    constraints = [],
-    useCache = false,
-}: UseFirestoreQueryParams) {
-    const [data, setData] = useState<T[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
+// Função para obter itens com base em uma consulta
+export async function getItemsByQuery<T = DocumentData>(
+    collectionName: string,
+    constraints: QueryConstraint[],
+    dispatch: Dispatch
+): Promise<T[]> {
+    dispatch(setGetItemsByQueryLoading(true));
+    try {
+        const collectionRef = collection(db, collectionName);
+        const q = query(collectionRef, ...constraints);
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data(),
+        } as T));
+    } catch (error) {
+        console.error('Erro ao buscar itens com consulta:', error);
+        throw new Error('Erro ao buscar itens com consulta.');
+    } finally {
+        dispatch(setGetItemsByQueryLoading(false));
+    }
+}
 
-    // Cache para armazenar os resultados
-    const cacheKey = `${collectionName}-${JSON.stringify(constraints)}`;
-    const cache = useRef<Record<string, T[]>>({});
+// Função para obter a soma de um campo específico
+export async function getSum(
+    collectionName: string,
+    constraints: QueryConstraint[],
+    fieldName: string,
+    dispatch: Dispatch
+): Promise<number> {
+    dispatch(setGetSumLoading(true));
+    try {
+        const collectionRef = collection(db, collectionName);
+        const q = query(collectionRef, ...constraints);
+        const querySnapshot = await getDocs(q);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            if (useCache && cache.current[cacheKey]) {
-                console.log('entro no cache')
-                setData(cache.current[cacheKey]);
-                setLoading(false);
-                return;
+        let sum = 0;
+        querySnapshot.forEach(doc => {
+            const data = doc.data();
+            if (data[fieldName]) {
+                sum += Number(data[fieldName]);
             }
+        });
 
-            try {
-                const collectionRef = collection(db, collectionName);
-                const q = query(collectionRef, ...constraints);
-                const querySnapshot = await getDocs(q);
+        return sum;
+    } catch (error) {
+        console.error('Erro ao calcular a soma:', error);
+        throw new Error('Erro ao calcular a soma.');
+    } finally {
+        dispatch(setGetSumLoading(false));
+    }
+}
 
-                const fetchedData: T[] = querySnapshot.docs.map(doc => ({
-                    id: doc.id,
-                    ...doc.data(),
-                } as T));
+// Função para adicionar um novo item
+export async function addItem<T extends DocumentData>(
+    collectionName: string,
+    item: T,
+    dispatch: Dispatch
+): Promise<void> {
+    dispatch(setAddItemLoading(true));
+    try {
+        const collectionRef = collection(db, collectionName);
+        await addDoc(collectionRef, item);
+    } catch (error) {
+        console.error('Erro ao adicionar item:', error);
+        throw new Error('Erro ao adicionar item.');
+    } finally {
+        dispatch(setAddItemLoading(false));
+    }
+}
 
-                if (useCache) {
-                    cache.current[cacheKey] = fetchedData;
-                }
-                setData(fetchedData);
-            } catch (error) {
-                setError('Erro ao buscar dados. Tente novamente');
-            } finally {
-                setLoading(false);
-            }
-        };
+// Função para atualizar um item existente
+export async function updateItem(
+    collectionName: string,
+    id: string,
+    updates: Partial<DocumentData>,
+    dispatch: Dispatch
+): Promise<void> {
+    dispatch(setUpdateItemLoading(true));
+    try {
+        const docRef = doc(db, collectionName, id);
+        await updateDoc(docRef, updates);
+    } catch (error) {
+        console.error('Erro ao atualizar item:', error);
+        throw new Error('Erro ao atualizar item.');
+    } finally {
+        dispatch(setUpdateItemLoading(false));
+    }
+}
 
-        fetchData();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [collectionName]);
-
-    return { data, loading, error };
+// Função para deletar um item
+export async function deleteItem(
+    collectionName: string,
+    id: string,
+    dispatch: Dispatch
+): Promise<void> {
+    dispatch(setDeleteItemLoading(true));
+    try {
+        const docRef = doc(db, collectionName, id);
+        await deleteDoc(docRef);
+    } catch (error) {
+        console.error('Erro ao deletar item:', error);
+        throw new Error('Erro ao deletar item.');
+    } finally {
+        dispatch(setDeleteItemLoading(false));
+    }
 }

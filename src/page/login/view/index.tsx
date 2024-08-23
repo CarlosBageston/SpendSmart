@@ -103,7 +103,7 @@ function Login() {
                         />
                     </GridItem>
                     <GridItem>
-                        <CustomSnackBar message={errorLogin} open={openSnackBar} setOpen={setOpenSnackBar} errorAlert />
+                        <CustomSnackBar message={errorLogin} open={openSnackBar} setOpen={setOpenSnackBar} />
                     </GridItem>
                 </GridContainer>
             </ScreenLayout>

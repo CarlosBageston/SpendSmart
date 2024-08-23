@@ -32,6 +32,9 @@ const CustomInput: React.FC<CustomInputProps> = ({
             autoCapitalize={autoCapitalize}
             variant="standard"
             style={style ? style : { width: '80%', maxWidth: '500px' }}
+            InputLabelProps={{
+                shrink: value !== undefined && value !== null && value !== '',
+            }}
             {...rest}
         />
     );

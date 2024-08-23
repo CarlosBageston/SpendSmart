@@ -120,7 +120,7 @@ function Signup() {
                         helperText={touched.confirmPassword && errors.confirmPassword}
                     />
                 </GridItem>
-                <CustomSnackBar message={errorSignup} open={openSnackBar} setOpen={setOpenSnackBar} errorAlert />
+                <CustomSnackBar message={errorSignup} open={openSnackBar} setOpen={setOpenSnackBar} />
             </GridContainer>
         </ScreenLayout>
     )

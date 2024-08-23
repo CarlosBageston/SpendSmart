@@ -4,11 +4,12 @@ import CustomInput from '@/components/custominput';
 import CustomSelect from '@/components/customselect';
 import { FixedCostsModel } from '@/page/fixedcosts/model';
 import { ItemsSelectProps } from '.';
-import { useState } from 'react';
+import { SetStateAction } from 'react';
 import CustomDatePicker from '@/components/customdatepicker';
 import { FormikErrors, FormikHandlers, FormikTouched } from 'formik';
 import { FormPaymentsModel } from '../model/formPaymentsModel';
 import useFormatCurrency from '@/hooks/formatCurrency';
+import CustomSnackBar, { StateSnackBar } from '@/components/customsnackbar';
 
 interface FormContentProps {
     fixedCosts: FixedCostsModel | null;
@@ -20,6 +21,13 @@ interface FormContentProps {
     touched: FormikTouched<FormPaymentsModel>;
     errors: FormikErrors<FormPaymentsModel>
     setFieldValue: (field: string, value: any) => void;
+    key: number;
+    error: string;
+    openSnackBar: StateSnackBar;
+    setOpenSnackBar: React.Dispatch<SetStateAction<StateSnackBar>>;
+    setOperationPayments: React.Dispatch<React.SetStateAction<ItemsSelectProps | null>>
+    operationPayments: ItemsSelectProps | null
+    operationPaymentsList: ItemsSelectProps[]
 }
 
 function FormPayments({
@@ -31,14 +39,16 @@ function FormPayments({
     handleChange,
     touched,
     values,
-    setFieldValue
+    setFieldValue,
+    key,
+    error,
+    openSnackBar,
+    setOpenSnackBar,
+    operationPayments,
+    setOperationPayments,
+    operationPaymentsList
 }: FormContentProps) {
-    const [operationPayments, setOperationPayments] = useState<ItemsSelectProps>({ label: 'Variável', value: OperationPaymentsEnum.CONTA_VARIAVEL });
     const { formatCurrencyRealTime } = useFormatCurrency()
-    const operationPaymentsList: ItemsSelectProps[] = [
-        { label: 'Fixa', value: OperationPaymentsEnum.CONTA_FIXA },
-        { label: 'Variável', value: OperationPaymentsEnum.CONTA_VARIAVEL }
-    ];
 
     return (
         <>
@@ -55,7 +65,7 @@ function FormPayments({
                     placeholder='Selecione...'
                 />
             </GridItem>
-            {operationPayments.value === OperationPaymentsEnum.CONTA_VARIAVEL ? (
+            {operationPayments === null ? (null) : operationPayments.value === OperationPaymentsEnum.CONTA_VARIAVEL ? (
                 <>
                     <GridItem input>
                         <CustomInput
@@ -81,6 +91,7 @@ function FormPayments({
                     </GridItem>
                     <GridItem input>
                         <CustomInput
+                            key={key}
                             label='Valor Pago'
                             onChange={(e) => setFieldValue('vlPayments', formatCurrencyRealTime(e.target.value))}
                             onBlur={handleBlur}
@@ -96,7 +107,10 @@ function FormPayments({
                     <GridItem paddingTopMuiGrid='15px'>
                         <CustomSelect<FixedCostsModel>
                             selectedValue={fixedCosts}
-                            onValueChange={(item) => setFixedCosts(item)}
+                            onValueChange={(item) => {
+                                setFixedCosts(item)
+                                setFieldValue('dsPayments', item.dsFixedCosts)
+                            }}
                             items={dataTable}
                             getLabel={(item) => item.dsFixedCosts}
                             getValue={(item) => item.id ?? ''}
@@ -114,7 +128,6 @@ function FormPayments({
                     </GridItem>
                     <GridItem input paddingTopMuiGrid='15px'>
                         <CustomDatePicker
-                            // key={`date-${key}`}
                             label='Data do Pagamento'
                             view={'date'}
                             name='dtPayments'
@@ -126,8 +139,9 @@ function FormPayments({
                     </GridItem>
                     <GridItem input paddingTopMuiGrid='15px'>
                         <CustomInput
+                            key={key}
                             label='Valor Pago'
-                            onChange={handleChange}
+                            onChange={(e) => setFieldValue('vlPayments', formatCurrencyRealTime(e.target.value))}
                             onBlur={handleBlur}
                             value={values.vlPayments}
                             error={touched.vlPayments && Boolean(errors.vlPayments)}
@@ -137,6 +151,11 @@ function FormPayments({
                     </GridItem>
                 </>
             )}
+            <CustomSnackBar
+                message={error ? error : "Cadastrado Com Sucesso"}
+                open={openSnackBar}
+                setOpen={setOpenSnackBar}
+            />
         </>
     );
 }

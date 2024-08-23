@@ -24,8 +24,6 @@ export default function useFormatCurrency() {
         // Remove caracteres não numéricos
         const inputText = valor.replace(/\D/g, '');
         const numericValue = parseFloat(inputText) / 100;
-        console.log(numericValue)
-        console.log(formatNumber(numericValue))
         return formatNumber(numericValue);
     }
 

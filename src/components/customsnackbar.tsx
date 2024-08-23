@@ -8,7 +8,6 @@ interface SnackBarProps {
     message: string;
     open: StateSnackBar;
     setOpen: Dispatch<SetStateAction<StateSnackBar>>;
-    errorAlert?: boolean
 }
 
 export interface StateSnackBar {

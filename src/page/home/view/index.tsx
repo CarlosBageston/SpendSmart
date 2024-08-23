@@ -8,9 +8,7 @@ import GridContainer from '@/components/gridcontainer';
 import GridItem from '@/components/griditem';
 import FormPayments from './formPayments';
 import DashboardHeader from './dashboardHeader';
-import { UseFirestoreQuery } from '@/hooks/usefirestorequery';
 import { FixedCostsModel } from '@/page/fixedcosts/model';
-import { UseTableKeys } from '@/hooks/usetablename';
 import { useFormik } from 'formik';
 import { FormPaymentsModel } from '../model/formPaymentsModel';
 import { OperationPaymentsEnum } from '@/constants/enums/operationPaymentsEnum';
@@ -19,29 +17,25 @@ import { FormIncomeModel } from '../model/formIncomeModel';
 import CustomDatePicker from '@/components/customdatepicker';
 import { IncomeTypeEnum } from '@/constants/enums/incomeTypeEnum';
 import useFormatCurrency from '@/hooks/formatCurrency';
-import { addDoc, collection, where } from 'firebase/firestore';
-import { db } from '@/config/firebase';
-import CustomSnackBar, { StateSnackBar } from '@/components/customsnackbar';
-import { useDispatch, useSelector } from 'react-redux';
-import { setError } from '@/store/reducer/reducer';
+import CustomSnackBar from '@/components/customsnackbar';
+import { useSelector } from 'react-redux';
 import { RootState } from '@/store/reducer/store';
-import { endOfMonth, startOfMonth } from 'date-fns';
+import useHomeLogic from '../logic';
+import VoiceInput from '@/components/voiceInput/view/voiceInput';
 
 export interface ItemsSelectProps {
     label: string;
     value: number;
 }
+
 function HomeScreen() {
-    const dispatch = useDispatch();
     const [fixedCosts, setFixedCosts] = useState<FixedCostsModel | null>(null);
     const [TransactionType, setTransactionType] = useState<ItemsSelectProps>({ label: 'Despesas', value: TransactionTypeEnum.DESPESA });
+    const [operationPayments, setOperationPayments] = useState<ItemsSelectProps | null>(null);
     const [income, setIncome] = useState<ItemsSelectProps | null>(null);
     const error = useSelector((state: RootState) => state.user.error)
-    const [openSnackBar, setOpenSnackBar] = useState<StateSnackBar>({ error: false, success: false });
-    const tableKey = UseTableKeys();
-    const { data: allItems } = UseFirestoreQuery<FixedCostsModel>(
-        { collectionName: tableKey.FixedCosts, useCache: true });
-    const { formatCurrencyRealTime, convertToNumber } = useFormatCurrency()
+    const loading = useSelector((state: RootState) => state.loading.getSumLoading)
+    const { formatCurrencyRealTime } = useFormatCurrency();
 
     const typeTransaction: ItemsSelectProps[] = [
         { label: 'Despesas', value: TransactionTypeEnum.DESPESA },
@@ -52,6 +46,10 @@ function HomeScreen() {
         { label: 'Renda Extra', value: IncomeTypeEnum.ADDITIONAL_INCOME }
     ];
 
+    const operationPaymentsList: ItemsSelectProps[] = [
+        { label: 'Fixa', value: OperationPaymentsEnum.CONTA_FIXA },
+        { label: 'Variável', value: OperationPaymentsEnum.CONTA_VARIAVEL }
+    ];
     const formikFormPayments = useFormik<FormPaymentsModel>({
         initialValues: {
             dtPayments: dayjs(),
@@ -66,7 +64,7 @@ function HomeScreen() {
         }),
         validateOnBlur: true,
         validateOnChange: true,
-        onSubmit: onSubmitPayments
+        onSubmit: () => onSubmitPayments()
     })
 
     const formikFormIncome = useFormik<FormIncomeModel>({
@@ -82,42 +80,28 @@ function HomeScreen() {
         }),
         validateOnBlur: true,
         validateOnChange: true,
-        onSubmit: onSubmitIncome
+        onSubmit: () => onSubmitIncome()
     })
-    async function onSubmitPayments() {
-        const valuesUpdate: FormPaymentsModel = {
-            ...formikFormPayments.values,
-            dtPayments: dayjs(formikFormPayments.values.dtPayments).format('DD/MM/YYYY'),
-            vlPayments: convertToNumber(formikFormPayments.values.vlPayments as string)
-        };
-        try {
-            await addDoc(collection(db, tableKey.Payments), {
-                ...valuesUpdate
-            })
-            formikFormPayments.resetForm()
-            setOpenSnackBar(prev => ({ ...prev, success: true }))
-        } catch (error) {
-            dispatch(setError('Erro ao salvar, verifique sua conexão e tente novamente.'))
-            setOpenSnackBar(prev => ({ ...prev, error: true }))
-        }
-    }
-    async function onSubmitIncome() {
-        const valuesUpdate: FormIncomeModel = {
-            ...formikFormIncome.values,
-            dtIncome: dayjs(formikFormIncome.values.dtIncome).format('DD/MM/YYYY'),
-            vlIncome: convertToNumber(formikFormIncome.values.vlIncome as string)
-        };
-        try {
-            await addDoc(collection(db, tableKey.Income), {
-                ...valuesUpdate
-            })
-            formikFormIncome.resetForm()
-            setOpenSnackBar(prev => ({ ...prev, success: true }))
-        } catch (error) {
-            dispatch(setError('Erro ao salvar, verifique sua conexão e tente novamente.'))
-            setOpenSnackBar(prev => ({ ...prev, error: true }))
-        }
-    }
+    const {
+        allItems,
+        key,
+        onSubmitIncome,
+        onSubmitPayments,
+        openSnackBar,
+        saldo,
+        sumVlIncome,
+        sumVlPayments,
+        setOpenSnackBar
+    } = useHomeLogic({
+        valuesIncome: formikFormIncome.values,
+        resetFormIncome: formikFormIncome.resetForm,
+        setFieldValueIncome: formikFormIncome.setFieldValue,
+
+        valuesPayments: formikFormPayments.values,
+        resetFormPayments: formikFormPayments.resetForm,
+        setFieldValuePayments: formikFormPayments.setFieldValue,
+    })
+
     function handleSubmitForm() {
         if (TransactionType.value === TransactionTypeEnum.RECEITA) {
             formikFormIncome.submitForm()
@@ -127,15 +111,17 @@ function HomeScreen() {
     }
     return (
         <ScreenLayout
-            styleHeader={{ padding: '20px', height: '185px' }}
+            styleHeader={{ padding: '20px', height: '220px' }}
+            paddingButton='5px 30px 30px'
             buttonTitle='Salvar'
             onClickButton={() => handleSubmitForm()}
             childrenTitle={
                 <DashboardHeader
-                    despesas='4.544,88'
-                    receita='8.255,25'
-                    saldo='3.710,37'
+                    despesas={sumVlPayments}
+                    receita={sumVlIncome}
+                    saldo={saldo}
                     title='Bem-Vindo(a) de Volta'
+                    loading={loading}
                 />
             }
         >
@@ -147,6 +133,17 @@ function HomeScreen() {
                         items={typeTransaction}
                         getLabel={(item) => item.label}
                         getValue={(item) => item.value}
+                    />
+                    <VoiceInput
+                        valuesPayments={formikFormPayments.values}
+                        setFieldValuePayments={formikFormPayments.setFieldValue}
+                        setOperationPayments={setOperationPayments}
+                        setFixedCosts={setFixedCosts}
+                        setIncome={setIncome}
+                        setTransactionType={setTransactionType}
+                        setFieldValueIncome={formikFormIncome.setFieldValue}
+                        handleSubmitPayments={formikFormPayments.handleSubmit}
+                        handleSubmitIncome={formikFormIncome.handleSubmit}
                     />
                 </GridItem>
                 {TransactionType.value === TransactionTypeEnum.DESPESA ? (
@@ -160,11 +157,19 @@ function HomeScreen() {
                         fixedCosts={fixedCosts}
                         setFixedCosts={setFixedCosts}
                         setFieldValue={formikFormPayments.setFieldValue}
+                        key={key}
+                        error={error}
+                        openSnackBar={openSnackBar}
+                        setOpenSnackBar={setOpenSnackBar}
+                        operationPayments={operationPayments}
+                        operationPaymentsList={operationPaymentsList}
+                        setOperationPayments={setOperationPayments}
                     />
                 ) : (
                     <>
                         <GridItem input>
                             <CustomSelect<ItemsSelectProps>
+                                key={key}
                                 selectedValue={income}
                                 onValueChange={(item) => {
                                     setIncome(item)
@@ -190,6 +195,7 @@ function HomeScreen() {
                         </GridItem>
                         <GridItem input>
                             <CustomInput
+                                key={key}
                                 label='Valor Recebido'
                                 name='vlIncome'
                                 onChange={(e) => { formikFormIncome.setFieldValue('vlIncome', formatCurrencyRealTime(e.target.value)) }}

@@ -5,7 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { collection, doc, writeBatch } from "firebase/firestore";
 import { setError, setLoading } from "@/store/reducer/reducer";
 import { UseTableKeys } from "@/hooks/usetablename";
-import { UseFirestoreQuery } from "@/hooks/usefirestorequery";
+import { getAllItems } from "@/hooks/usefirestorequery";
 import { SituacaoRegistroEnum } from "@/constants/enums/situacaoregistroenum";
 import dayjs from "dayjs";
 import { v4 as uuidv4 } from 'uuid';
@@ -59,15 +59,19 @@ export function useFixedCostsLogic({ values, setFieldValue, resetForm, setDirtyL
 
     const tableKey = UseTableKeys();
     const loading = useSelector((state: RootState) => state.user.loading);
+    const loadingAllItem = useSelector((state: RootState) => state.loading.getAllItemsLoading);
     const errorFixedCosts = useSelector((state: RootState) => state.user.error);
-    const { data: allItems, loading: loadingFireStore } = UseFirestoreQuery<FixedCostsModel>(
-        {collectionName: tableKey.FixedCosts, useCache:true});
-
-    useEffect(() => {
-        if (allItems) {
-            setFixedCostsList(allItems);
-        }
-    }, [allItems]);
+        useEffect(() => {
+            // Buscar todos os itens
+            const fetchItems = async () => {
+                const allData = await getAllItems<FixedCostsModel>(tableKey.FixedCosts, dispatch);
+                setFixedCostsList(allData);
+            };
+            
+            fetchItems();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        }, []);
+    
 
         
     function isLocalId(id: string): boolean {
@@ -191,6 +195,6 @@ export function useFixedCostsLogic({ values, setFieldValue, resetForm, setDirtyL
         handleExpenseClick,
         selected,
         handleDelete,
-        loadingFireStore
+        loadingAllItem
     };
 }
