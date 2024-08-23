@@ -1,7 +1,7 @@
 export const errorMessages: Record<string, { log: string; speak: string }> = {
     'no-speech': {
         log: 'Nenhuma fala detectada. Tente falar mais alto ou mais perto do microfone.',
-        speak: 'Não consegui detectar sua fala. Por favor, tente novamente.',
+        speak: 'Não consegui detectar sua fala. Estarei finalizando.',
     },
     'audio-capture': {
         log: 'Problema com a captura de áudio. Verifique se o microfone está funcionando.',

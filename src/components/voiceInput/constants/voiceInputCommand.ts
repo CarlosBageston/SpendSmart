@@ -30,12 +30,14 @@ interface RecognitionHandlerParams {
     setFieldValueIncome?: (field: string, value: any) => void;
     handleSubmitPayments?: () => void;
     handleSubmitIncome?: () => void;
+    setHasError?: React.Dispatch<React.SetStateAction<boolean>>
 }
 
 type RecognitionHandler = (result: string, params: RecognitionHandlerParams) => Promise<void>;
 
 const voiceInputCommand: Record<number, RecognitionHandler> = {
-    0: async (result, { speak, setStep, recognition, setLoading, setTransactionType, noUnderstendSpeech }) => {
+    0: async (result, { speak, setStep, recognition, setLoading, setTransactionType, noUnderstendSpeech, setHasError }) => {
+        setHasError?.(false);
         if (result.includes('despes')) {
             speak('Qual é o tipo de despesa que você quer pagar, fixa ou variavel?', () => {
                 setLoading(true);
@@ -53,7 +55,8 @@ const voiceInputCommand: Record<number, RecognitionHandler> = {
             noUnderstendSpeech?.(0);
         }
     },
-    1: async (result, { speak, setStep, recognition, setFieldValue, setOperationPayments, setLoading, noUnderstendSpeech }) => {
+    1: async (result, { speak,setHasError, setStep, recognition, setFieldValue, setOperationPayments, setLoading, noUnderstendSpeech }) => {
+        setHasError?.(false);
         if (result.includes('fix')) {
             speak('Qual é o nome da despesa?', () => {
                 setFieldValue?.('operationPayments', OperationPaymentsEnum.CONTA_FIXA);
@@ -74,15 +77,15 @@ const voiceInputCommand: Record<number, RecognitionHandler> = {
             noUnderstendSpeech?.(0);
         }
     },
-    2: async (result, { speak, setStep, setFixedCosts, setFieldValue, tableKey, dispatch, setLoading, recognition, valuesPayments, noUnderstendSpeech }) => {
+    2: async (result, { speak,setHasError, setStep, setFixedCosts, setFieldValue, tableKey, dispatch, setLoading, recognition, valuesPayments, noUnderstendSpeech }) => {
+        setHasError?.(false);
         if (valuesPayments?.operationPayments === OperationPaymentsEnum.CONTA_FIXA) {
-            if(!dispatch) return;
             speak('Aguarde, procurando despesa.', async () => {
                 try {
                     const dsPaymentsExisting = await getItemsByQuery<FixedCostsModel>(
                         tableKey!.FixedCosts,
                         [where("dsFixedCostsFormatted", "==", result)],
-                        dispatch
+                        dispatch!
                     );
                     if (dsPaymentsExisting.length === 0) {
                         speak('Nenhuma despesa encontrada. Tentar de novo? sim ou não', () => {
@@ -112,7 +115,8 @@ const voiceInputCommand: Record<number, RecognitionHandler> = {
             });
         }
     },
-    3: async (result, { speak, setStep, setLoading, recognition, setFieldValue, formatNumber, convertToNumber }) => {
+    3: async (result, { speak, setHasError, setStep, setLoading, recognition, setFieldValue, formatNumber, convertToNumber }) => {
+        setHasError?.(false)
         const numericString = result.replace(/[^\d,]/g, '');
         const numericValue = convertToNumber?.(numericString) ?? 0;
         const formattedValue = formatNumber?.(numericValue) ?? '';
@@ -123,7 +127,8 @@ const voiceInputCommand: Record<number, RecognitionHandler> = {
             recognition.start();
         });
     },
-    4: async (result, { speak, setStep, recognition, setLoading, recognitionStop }) => {
+    4: async (result, { speak, setStep, setHasError, recognition, setLoading, recognitionStop }) => {
+        setHasError?.(false)
         if (result.includes('sim')) {
             speak('Ok, vamos tentar novamente', () => {
                 setStep(1);
@@ -136,7 +141,8 @@ const voiceInputCommand: Record<number, RecognitionHandler> = {
             });
         }
     },
-    5: async (result, { speak, setStep, recognition, setLoading, setIncome, setFieldValueIncome, noUnderstendSpeech }) => {
+    5: async (result, { speak, setHasError, setStep, recognition, setLoading, setIncome, setFieldValueIncome, noUnderstendSpeech }) => {
+        setHasError?.(false)
         if (result.includes('fix')) {
             setIncome?.({ label: 'Renda Fixa', value: IncomeTypeEnum.FIXED_INCOME });
             setFieldValueIncome?.('stIncome', IncomeTypeEnum.FIXED_INCOME);
@@ -157,7 +163,8 @@ const voiceInputCommand: Record<number, RecognitionHandler> = {
             noUnderstendSpeech?.(5);
         }
     },
-    6: async (result, { speak, convertToNumber, formatNumber, setFieldValueIncome, setStep, setLoading, recognition }) => {
+    6: async (result, { speak, setHasError, convertToNumber, formatNumber, setFieldValueIncome, setStep, setLoading, recognition }) => {
+        setHasError?.(false)
         const numericString = result.replace(/[^\d,]/g, '');
         const numericValue = convertToNumber?.(numericString) ?? 0;
         const formattedValue = formatNumber?.(numericValue) ?? '';
@@ -168,7 +175,8 @@ const voiceInputCommand: Record<number, RecognitionHandler> = {
             recognition.start();
         });
     },
-    7: async (result, { speak, handleSubmitPayments, recognitionStop, setOperationPayments, setFixedCosts, noUnderstendSpeech }) => {
+    7: async (result, { speak, setHasError, handleSubmitPayments, recognitionStop, setOperationPayments, setFixedCosts, noUnderstendSpeech }) => {
+        setHasError?.(false)
         if (result.includes('sim')) {
             speak('Ok, salvando dados');
             handleSubmitPayments?.();
@@ -181,7 +189,8 @@ const voiceInputCommand: Record<number, RecognitionHandler> = {
             noUnderstendSpeech?.(7);
         }
     },
-    8: async (result, { speak, handleSubmitIncome, recognitionStop, setIncome, setTransactionType, noUnderstendSpeech  }) => {
+    8: async (result, { speak, setHasError, handleSubmitIncome, recognitionStop, setIncome, setTransactionType, noUnderstendSpeech  }) => {
+        setHasError?.(false)
         if (result.includes('sim')) {
             speak('Ok, salvando dados');
             handleSubmitIncome?.();

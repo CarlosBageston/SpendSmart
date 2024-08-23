@@ -6,10 +6,10 @@ import { FixedCostsModel } from '@/page/fixedcosts/model';
 import styled, { css, keyframes } from 'styled-components';
 import SpatialAudioOffIcon from '@mui/icons-material/SpatialAudioOff';
 import { FormPaymentsModel } from '@/page/home/model/formPaymentsModel';
-import { errorMessages } from '../constants/errorMessages';
 import voiceInputCommand from '../constants/voiceInputCommand';
 import useFormatCurrency from '@/hooks/formatCurrency';
 import { FaAssistiveListeningSystems } from "react-icons/fa";
+import { errorMessages } from '../constants/errorMessages';
 
 
 
@@ -39,6 +39,7 @@ function VoiceInput({
     const [isListening, setIsListening] = useState(false);
     const [step, setStep] = useState<number>(0);
     const [loading, setLoading] = useState(false);
+    const [hasError, setHasError] = useState(false);
     const tableKey = UseTableKeys();
     const dispatch = useDispatch();
     const [expand, setExpand] = useState(true);
@@ -102,9 +103,16 @@ function VoiceInput({
             };
 
             recognition.onerror = (event: any) => {
-                console.error('Erro ao reconhecer fala:', event.error);
-                speak(errorMessages[event.error]?.speak || 'Houve um erro inesperado.');
-                setLoading(false);
+                if (event.error === 'no-speech') {
+                    setHasError(true);
+                    recognitionStop();
+                    setTimeout(() => {
+                        setHasError(false);
+                    }, 2000);
+                    speak(errorMessages[event.error]?.speak)
+                } else {
+                    setHasError(true);
+                }
             };
 
             return recognition;
@@ -213,7 +221,7 @@ function VoiceInput({
 
     return (
         <>
-            <IconWrapper expand={expand} onClick={() => setIsListening(!isListening)}>
+            <IconWrapper expand={expand} hasError={hasError} onClick={() => setIsListening(!isListening)}>
                 {loading ? (
                     <StyledIconListening />
                 ) : (
@@ -281,7 +289,7 @@ const Tooltip = styled.div<{ expand: boolean }>`
         `}
 `;
 
-const IconWrapper = styled.div<{ expand: boolean }>`
+const IconWrapper = styled.div<{ expand: boolean, hasError: boolean }>`
     position: fixed;
     bottom: 8rem;
     right: 2rem;
@@ -290,7 +298,7 @@ const IconWrapper = styled.div<{ expand: boolean }>`
     justify-content: center;
     padding: 12px;
     border-radius: 20px;
-    background-color: ${props => props.theme.paletteColor.secundGreen};
+    background-color: ${props => props.hasError ? props.theme.paletteColor.error : props.theme.paletteColor.secundGreen};
     ${({ expand }) =>
         expand
             ? css`
