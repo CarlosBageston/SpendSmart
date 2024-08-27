@@ -7,7 +7,7 @@ import { TransactionTypeEnum } from '@enums/transactionTypeEnum';
 import GridContainer from '@/components/gridcontainer';
 import GridItem from '@/components/griditem';
 import FormPayments from './formPayments';
-import DashboardHeader from './dashboardHeader';
+import DashboardHeader from './dashboardheader';
 import { FixedCostsModel } from '@/page/fixedcosts/model';
 import { useFormik } from 'formik';
 import { FormPaymentsModel } from '../model/formPaymentsModel';

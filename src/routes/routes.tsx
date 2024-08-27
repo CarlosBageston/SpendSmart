@@ -6,6 +6,7 @@ import FixedCosts from '@/page/fixedcosts/view';
 import Signup from '@/page/signup/view';
 import VerifyEmail from '@/page/verifyemail/view';
 import PrivateRoute from '@/hooks/auth/privateroutes';
+import Notification from '@/page/notification/view';
 
 const Router = () => (
     <BrowserRouter>
@@ -16,6 +17,7 @@ const Router = () => (
             <Route element={<PrivateRoute />}>
                 <Route path="/home" element={<HomeScreen />} />
                 <Route path="/fixed-costs" element={<FixedCosts />} />
+                <Route path="/notification" element={<Notification />} />
             </Route>
         </Routes>
     </BrowserRouter>

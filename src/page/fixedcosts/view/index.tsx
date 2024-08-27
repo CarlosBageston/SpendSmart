@@ -145,7 +145,7 @@ function FixedCosts() {
                         disabled={loading}
                     />
                 </GridItem>
-                <DivExpendCard>
+                <DivExpendCard className="hidden-scrollbar">
                     <GridItem direction="column" marginLeft="20px">
                         {loadingAllItem ? (
                             <TitleCircule>

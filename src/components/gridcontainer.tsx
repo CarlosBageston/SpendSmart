@@ -10,6 +10,7 @@ interface GridContainerProps {
     spacing?: number;
     style?: React.CSSProperties;
     children: React.ReactNode;
+    className?: string;
 }
 
 const GridContainer: React.FC<GridContainerProps> = ({
@@ -18,7 +19,9 @@ const GridContainer: React.FC<GridContainerProps> = ({
     justifyContent = 'center',
     spacing = 4,
     style,
+    className,
     children,
+    ...rest
 }) => {
     return (
         <StyledGridContainer
@@ -28,6 +31,8 @@ const GridContainer: React.FC<GridContainerProps> = ({
             justifyContent={justifyContent}
             spacing={spacing}
             style={style}
+            className={className}
+            {...rest}
         >
             {children}
         </StyledGridContainer>

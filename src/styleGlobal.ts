@@ -18,6 +18,38 @@ body {
   font-size: 16px;
 }
 
+.hidden-scrollbar {
+    overflow-y: auto;
+
+    ::-webkit-scrollbar {
+        width: 0;
+        height: 0;
+    }
+
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.style-scrollbar {
+  &::-webkit-scrollbar {
+    width: 14px; 
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px; 
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: ${({theme}) => theme.paletteColor.darkGreen};
+    border-radius: 10px; 
+    border: 3px solid #f1f1f1;
+  }
+
+  &::-webkit-scrollbar-thumb:hover {
+    background: #093050; 
+  }
+}
+
 body {
   font-family: ${props => props.theme.fontsDefault.primaryFont};
   line-height: 1.4;

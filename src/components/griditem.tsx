@@ -9,6 +9,7 @@ interface GridItemProps extends GridProps {
     direction?: 'row' | 'column';
     paddingTopMuiGrid?: string;
     input?: boolean;
+    paddingLeftMuiGrid?: string
 }
 
 const GridItem: React.FC<GridItemProps> = ({
@@ -23,6 +24,7 @@ const GridItem: React.FC<GridItemProps> = ({
     direction,
     paddingTopMuiGrid,
     input,
+    paddingLeftMuiGrid,
     ...rest
 }) => {
     return (
@@ -33,7 +35,7 @@ const GridItem: React.FC<GridItemProps> = ({
             md={md}
             lg={lg}
             xl={xl}
-            style={{ ...style, paddingTop: paddingTopMuiGrid }}
+            style={{ ...style, paddingTop: paddingTopMuiGrid, paddingLeft: paddingLeftMuiGrid }}
             justifyContent={justifyContent}
             direction={direction}
             input={input}

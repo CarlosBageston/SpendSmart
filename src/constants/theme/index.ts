@@ -10,6 +10,7 @@ export const theme: DefaultTheme = {
         warning: '#FFC107',             // Cor amarela para avisos
         success: '#4CAF50',             // Cor verde para sucesso
         neutral: '#F5F5F5',             // Cor neutra para backgrounds e bordas
+        info: '#0068FF'                 // Cor Azul usada para informações
     },
     fontsDefault: {
         primaryFont: "'Baloo 2', Arial, sans-serif",

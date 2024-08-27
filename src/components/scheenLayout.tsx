@@ -2,6 +2,12 @@ import React from 'react';
 import styled from 'styled-components';
 import CustomButton from './custombutton';
 import Footer from '@/page/footer/view';
+import { RiArrowLeftLine } from "react-icons/ri";
+
+import GridItem from './griditem';
+import GridContainer from './gridcontainer';
+import { IoIosNotificationsOutline } from 'react-icons/io';
+import { useNavigate } from 'react-router-dom';
 
 interface ScreenProps {
     title?: string;
@@ -17,7 +23,8 @@ interface ScreenProps {
     showFooter?: boolean,
     loadingButton?: boolean
     disabledButton?: boolean
-    paddingButton?: string
+    paddingButton?: string;
+    showIcons?: boolean
 }
 
 const ScreenLayout = ({
@@ -34,14 +41,24 @@ const ScreenLayout = ({
     disabledButton,
     typeButton = 'Button',
     paddingButton,
-    onClickButton
+    onClickButton,
+    showIcons = true
 }: ScreenProps) => {
+    const navigate = useNavigate();
     return (
         <Container>
             <HeaderWrapper>
                 <Header style={styleHeader}>
                     {title ? (
-                        <Title>{title}</Title>
+                        <GridContainer>
+                            <GridItem paddingLeftMuiGrid='70px' paddingRight={'35px'}>
+                                {showIcons && <RiArrowLeftLine size={35} color='#f1f1f1' onClick={() => navigate(-1)} />}
+                                <Title>{title}</Title>
+                                {showIcons && <IconContainer onClick={() => navigate('/notification')}>
+                                    <NotificationIcon size={30} />
+                                </IconContainer>}
+                            </GridItem>
+                        </GridContainer>
                     ) : (
                         childrenTitle
                     )}
@@ -64,6 +81,26 @@ const ScreenLayout = ({
         </Container>
     );
 };
+export const IconContainer = styled.div<{ widthIcon?: string }>`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: ${props => props.widthIcon ? props.widthIcon : '45px'};
+    height: 40px;
+    border-radius: 50%;
+    background-color: ${props => props.theme.paletteColor.lightGreen};
+    cursor: pointer;
+`;
+
+export const NotificationIcon = styled(IoIosNotificationsOutline)`
+    color: ${({ theme }) => theme.paletteColor.darkGreen};
+    cursor: pointer;
+    transition: color 0.3s;
+    
+    &:hover {
+        color: ${({ theme }) => theme.paletteColor.primaryGreen};
+    }
+`;
 
 const Container = styled.div`
     display: flex;
@@ -88,11 +125,12 @@ const Header = styled.div`
 `;
 
 const Title = styled.h1`
-    font-size: 24px;
+    font-size: 20px;
     font-weight: bold;
     color: #093030;
     text-align: center;
     width: 100%;
+    padding-top: 5px;
 `;
 
 const Content = styled.div`
