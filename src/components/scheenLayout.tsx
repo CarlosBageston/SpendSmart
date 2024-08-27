@@ -130,7 +130,7 @@ const Title = styled.h1`
     color: #093030;
     text-align: center;
     width: 100%;
-    padding-top: 5px;
+    padding: 5px 12px;
 `;
 
 const Content = styled.div`
