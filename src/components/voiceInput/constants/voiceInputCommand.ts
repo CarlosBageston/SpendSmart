@@ -82,12 +82,12 @@ const voiceInputCommand: Record<number, RecognitionHandler> = {
         if (valuesPayments?.operationPayments === OperationPaymentsEnum.CONTA_FIXA) {
             speak('Aguarde, procurando despesa.', async () => {
                 try {
-                    const dsPaymentsExisting = await getItemsByQuery<FixedCostsModel>(
+                    const { data } = await getItemsByQuery<FixedCostsModel>(
                         tableKey!.FixedCosts,
                         [where("dsFixedCostsFormatted", "==", result)],
                         dispatch!
                     );
-                    if (dsPaymentsExisting.length === 0) {
+                    if (data.length === 0) {
                         speak('Nenhuma despesa encontrada. Tentar de novo? sim ou não', () => {
                             setStep(4);
                             setLoading(true);
@@ -95,7 +95,7 @@ const voiceInputCommand: Record<number, RecognitionHandler> = {
                         });
                         return;
                     }
-                    setFixedCosts?.(dsPaymentsExisting[0]);
+                    setFixedCosts?.(data[0]);
                     setFieldValue?.('dsPayments', result);
                     speak('Despesa encontrada, Qual é o valor desta despesa?', () => {
                         setStep(3);

@@ -124,8 +124,8 @@ export function useFixedCostsLogic({ values, setFieldValue, resetForm, setDirtyL
             if (JSON.stringify(selected) !== JSON.stringify(values)){
                 const updatedValues = {
                     ...values,
-                    dayVencimento: dayjs(values.dayVencimento).format('DD/MM/YYYY'),
-                    dtVigencia: values.dtIndefinida ? '' : dayjs(values.dtVigencia).format('DD/MM/YYYY'),
+                    dayVencimento: dayjs(values.dayVencimento).format('YYYY-MM-DD'),
+                    dtVigencia: values.dtIndefinida ? '' : dayjs(values.dtVigencia).format('YYYY-MM-DD'),
                     stRegistro: values.stRegistro === SituacaoRegistroEnum.CREATE ? 
                     SituacaoRegistroEnum.CREATE : SituacaoRegistroEnum.UPDATE,
                 };
@@ -136,8 +136,8 @@ export function useFixedCostsLogic({ values, setFieldValue, resetForm, setDirtyL
             const newFixedCost: FixedCostsModel = {
                 ...values,
                 id: `${uuidv4()}-Temp`,
-                dayVencimento: dayjs(values.dayVencimento).format('DD/MM/YYYY'),
-                dtVigencia: values.dtIndefinida ? '' : dayjs(values.dtVigencia).format('DD/MM/YYYY'),
+                dayVencimento: dayjs(values.dayVencimento).format('YYYY-MM-DD'),
+                dtVigencia: values.dtIndefinida ? '' : dayjs(values.dtVigencia).format('YYYY-MM-DD'),
                 stRegistro: SituacaoRegistroEnum.CREATE
             };
             setFixedCostsList([...fixedCostsList, newFixedCost]);
@@ -165,9 +165,9 @@ export function useFixedCostsLogic({ values, setFieldValue, resetForm, setDirtyL
         setSelected(expense)
         setFieldValue('id', expense.id)
         setFieldValue('dsFixedCosts', expense.dsFixedCosts);
-        setFieldValue('dayVencimento', dayjs(expense.dayVencimento, 'DD/MM/YYYY'));
+        setFieldValue('dayVencimento', dayjs(expense.dayVencimento));
         setFieldValue('dtIndefinida', expense.dtIndefinida);
-        setFieldValue('dtVigencia', dayjs(expense.dtVigencia, 'DD/MM/YYYY'));
+        setFieldValue('dtVigencia', dayjs(expense.dtVigencia));
         setFieldValue('stRegistro', !expense.stRegistro? expense.stRegistro : undefined);
         setKey(Math.random())
     };

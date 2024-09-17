@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import ScreenLayout from '@/components/scheenLayout';
 import CustomSelect from '@/components/customselect';
 import CustomInput from '@/components/custominput';
@@ -22,6 +22,8 @@ import { useSelector } from 'react-redux';
 import { RootState } from '@/store/reducer/store';
 import useHomeLogic from '../logic';
 import VoiceInput from '@/components/voiceInput/view/voiceInput';
+import ReminderBanner from '@/components/reminderBanner/view/reminderBanner';
+import moment from 'moment';
 
 export interface ItemsSelectProps {
     label: string;
@@ -32,6 +34,7 @@ function HomeScreen() {
     const [fixedCosts, setFixedCosts] = useState<FixedCostsModel | null>(null);
     const [TransactionType, setTransactionType] = useState<ItemsSelectProps>({ label: 'Despesas', value: TransactionTypeEnum.DESPESA });
     const [operationPayments, setOperationPayments] = useState<ItemsSelectProps | null>(null);
+    const [lastShowDate, setLastShowDate] = useState<boolean>(false);
     const [income, setIncome] = useState<ItemsSelectProps | null>(null);
     const error = useSelector((state: RootState) => state.user.error)
     const loading = useSelector((state: RootState) => state.loading.getSumLoading)
@@ -109,6 +112,10 @@ function HomeScreen() {
             formikFormPayments.submitForm()
         }
     }
+    useEffect(() => {
+        const lastDate = localStorage.getItem('lastReminderShownDate') !== moment().format("YYYY-MM-DD");
+        setLastShowDate(lastDate)
+    }, [])
     return (
         <ScreenLayout
             styleHeader={{ padding: '20px', height: '220px' }}
@@ -125,6 +132,11 @@ function HomeScreen() {
                 />
             }
         >
+            {
+                lastShowDate ? (
+                    <ReminderBanner />
+                ) : null
+            }
             <GridContainer style={{ height: '26rem', display: 'block' }}>
                 <GridItem>
                     <CustomSelect<ItemsSelectProps>

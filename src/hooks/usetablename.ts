@@ -13,6 +13,7 @@ export const UseTableKeys = () => {
         FixedCosts: `UsersData/${user.uid}/FixedCosts`,
         Balance: `UsersData/${user.uid}/Balance`,
         Payments: `UsersData/${user.uid}/Payments`,
-        Income: `UsersData/${user.uid}/Income`
+        Income: `UsersData/${user.uid}/Income`,
+        Notification: `UsersData/${user.uid}/Notification`
     };
 };

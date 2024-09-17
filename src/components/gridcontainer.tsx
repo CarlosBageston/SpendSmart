@@ -1,9 +1,9 @@
 // GridContainer.tsx
 import React from 'react';
-import { Grid } from '@mui/material';
+import { Grid, GridProps } from '@mui/material';
 import styled from 'styled-components';
 
-interface GridContainerProps {
+interface GridContainerProps extends GridProps {
     direction?: 'row' | 'row-reverse' | 'column' | 'column-reverse';
     alignItems?: 'flex-start' | 'center' | 'flex-end' | 'stretch';
     justifyContent?: 'flex-start' | 'center' | 'flex-end' | 'space-between' | 'space-around' | 'space-evenly';

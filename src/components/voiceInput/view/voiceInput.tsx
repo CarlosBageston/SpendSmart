@@ -86,8 +86,6 @@ function VoiceInput({
                 try {
                     setLoading(false);
                     const result = event.results[0][0].transcript.toLowerCase() as string;
-                    console.log(result);
-                    console.log(step);
 
                     if (result.includes('cancelar') || result.includes('parar')) {
                         speak('Operação cancelada.');
@@ -96,7 +94,6 @@ function VoiceInput({
                     }
                     startCommand(result, recognition, recognitionStop, noUnderstendSpeech)
                 } catch (error) {
-                    console.error('Erro ao processar o resultado do reconhecimento:', error);
                     speak('Houve um erro ao processar sua fala. Tente novamente.');
                     setLoading(false);
                 }
@@ -117,7 +114,6 @@ function VoiceInput({
 
             return recognition;
         } catch (error) {
-            console.error('Erro ao inicializar reconhecimento de fala:', error);
             speak('Ocorreu um erro ao inicializar o reconhecimento de fala.');
             setLoading(false);
             return null;
@@ -140,7 +136,6 @@ function VoiceInput({
                         setLoading(true);
                         recognition.start();
                     } catch (error) {
-                        console.error('Erro ao iniciar reconhecimento de fala:', error);
                         speak('Ocorreu um erro ao iniciar o reconhecimento de fala.');
                         setLoading(false);
                     }
@@ -148,21 +143,14 @@ function VoiceInput({
             }
         } else {
             if (recognition) {
-                try {
-                    recognition.stop();
-                } catch (error) {
-                    console.error('Erro ao parar reconhecimento de fala:', error);
-                }
+                recognition.stop();
+
             }
         }
 
         return () => {
             if (recognition) {
-                try {
-                    recognition.stop();
-                } catch (error) {
-                    console.error('Erro ao parar reconhecimento de fala:', error);
-                }
+                recognition.stop();
             }
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps
