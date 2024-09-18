@@ -9,7 +9,6 @@ import IncomeIcon from '@/assets/icons/Income.png';
 import { useNavigate } from 'react-router-dom';
 import { IconContainer, NotificationIcon } from '@/components/scheenLayout';
 
-// Helper function to interpolate between two colors based on a percentage
 const interpolateColor = (startColor: string, endColor: string, percent: number) => {
     const start = parseInt(startColor.slice(1), 16);
     const end = parseInt(endColor.slice(1), 16);
@@ -101,7 +100,14 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ title, receita, despe
                     <PercentageTypography color={percentageColor}>{Math.round(progresso)}%</PercentageTypography>
                     <SaldoTypography color={saldoColor}>{formatNumber(saldo)}</SaldoTypography>
                 </ProgressContainer>
-                <InfoTypography fontSize={12} paddingTop={0.4}>{`${progresso.toFixed(0)}% Gasto, ${getStatusMessage(progresso)}`}</InfoTypography>
+                <InfoTypography fontSize={12} paddingTop={0.4}>
+                    {
+                        formatNumber(saldo).startsWith("-") ?
+                            `Alerta! Sua carteira entrou em greve. Pare de gastar!`
+                            :
+                            `${progresso.toFixed(0)}% Gasto, ${getStatusMessage(progresso)}`
+                    }
+                </InfoTypography>
             </GridItem>
         </GridContainer>
     );
