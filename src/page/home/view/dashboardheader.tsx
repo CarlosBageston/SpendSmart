@@ -1,15 +1,14 @@
 import React from 'react';
-import styled from 'styled-components';
-import { Typography, LinearProgress, Box, CircularProgress } from '@mui/material';
-import { IoIosNotificationsOutline } from 'react-icons/io';
+import { CircularProgress } from '@mui/material';
 import GridContainer from '@/components/gridcontainer';
 import GridItem from '@/components/griditem';
 import useFormatCurrency from '@/hooks/formatCurrency';
-import { IconContainer } from '../style';
+import { CustomLinearProgress, DivBox, DivLoading, IconImage, InfoTypography, PercentageTypography, ProgressContainer, SaldoTypography, TitleTypography, ValueTypography } from '../style';
 import ExpenseIcon from '@/assets/icons/Expenses.png';
 import IncomeIcon from '@/assets/icons/Income.png';
+import { useNavigate } from 'react-router-dom';
+import { IconContainer, NotificationIcon } from '@/components/scheenLayout';
 
-// Helper function to interpolate between two colors based on a percentage
 const interpolateColor = (startColor: string, endColor: string, percent: number) => {
     const start = parseInt(startColor.slice(1), 16);
     const end = parseInt(endColor.slice(1), 16);
@@ -29,102 +28,6 @@ const interpolateColor = (startColor: string, endColor: string, percent: number)
     return `#${(1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1)}`;
 };
 
-const TitleTypography = styled(Typography)`
-    && {
-        font-weight: 600;
-        color: ${({ theme }) => theme.paletteColor.darkGreen};
-    }
-`;
-
-const InfoTypography = styled(Typography)`
-    && {
-        color: ${({ theme }) => theme.paletteColor.darkGreen};
-        font-weight: 700;
-    }
-`;
-
-const DivBox = styled.div`
-    background-color: ${({ theme }) => theme.paletteColor.neutral};
-    height: 6rem;
-    width: 90%;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding-top: 8px;
-`;
-
-const ValueTypography = styled(Typography) <{ error?: boolean }>`
-    && {
-        font-size: 1.2rem;
-        font-weight: 700;
-        color: ${props => props.error ? props.theme.paletteColor.error : props.theme.paletteColor.darkGreen};
-    }
-`;
-
-const NotificationIcon = styled(IoIosNotificationsOutline)`
-    color: ${({ theme }) => theme.paletteColor.secundGreen};
-    cursor: pointer;
-    transition: color 0.3s;
-    
-    &:hover {
-        color: ${({ theme }) => theme.paletteColor.primaryGreen};
-    }
-`;
-
-const IconImage = styled.img`
-    height: 24px;
-    margin-bottom: 8px;
-`;
-const DivLoading = styled.div`
-    padding-bottom: 2px;
-`;
-
-const ProgressContainer = styled(Box)`
-    width: 95%;
-    position: relative;
-`;
-
-const CustomLinearProgress = styled(LinearProgress)`
-    && {
-        height: 20px;
-        border-radius: 50px;
-        background-color: #052224;
-        transform: rotate(180deg);
-        .MuiLinearProgress-bar {
-            border-radius: 50px;
-            background-color: ${({ theme }) => theme.paletteColor.neutral};
-        }
-    }
-`;
-
-const PercentageTypography = styled(Typography) <{ color: string }>`
-    && {
-        position: absolute;
-        top: 50%;
-        left: 8%;
-        transform: translate(-50%, -50%);
-        font-weight: 700;
-        font-size: 0.9rem;
-        color: ${(props) => props.color};
-        white-space: nowrap;
-    }
-`;
-
-const SaldoTypography = styled(Typography) <{ color: string }>`
-    && {
-        position: absolute;
-        top: 50%;
-        left: 86%;
-        transform: translate(-50%, -50%);
-        font-weight: 700;
-        font-size: 0.9rem;
-        color: ${(props) => props.color === 'red' ? props.theme.paletteColor.error : props.color};
-        white-space: nowrap;
-    }
-`;
-
 interface DashboardHeaderProps {
     title: string;
     receita: number;
@@ -134,6 +37,7 @@ interface DashboardHeaderProps {
 }
 
 const DashboardHeader: React.FC<DashboardHeaderProps> = ({ title, receita, despesas, saldo, loading }) => {
+    const navigate = useNavigate();
     const { formatNumber } = useFormatCurrency();
     const progresso = receita > 0 ? (despesas / receita) * 100 : 0;
 
@@ -162,7 +66,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ title, receita, despe
                 <TitleTypography variant="h6">{title}</TitleTypography>
             </GridItem>
             <GridItem xs={2} paddingTopMuiGrid='30px'>
-                <IconContainer>
+                <IconContainer widthIcon='40px' onClick={() => navigate('/notification')}>
                     <NotificationIcon size={30} />
                 </IconContainer>
             </GridItem>
@@ -196,7 +100,14 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({ title, receita, despe
                     <PercentageTypography color={percentageColor}>{Math.round(progresso)}%</PercentageTypography>
                     <SaldoTypography color={saldoColor}>{formatNumber(saldo)}</SaldoTypography>
                 </ProgressContainer>
-                <InfoTypography fontSize={12} paddingTop={0.4}>{`${progresso.toFixed(0)}% Gasto, ${getStatusMessage(progresso)}`}</InfoTypography>
+                <InfoTypography fontSize={12} paddingTop={0.4}>
+                    {
+                        formatNumber(saldo).startsWith("-") ?
+                            `Alerta! Sua carteira entrou em greve. Pare de gastar!`
+                            :
+                            `${progresso.toFixed(0)}% Gasto, ${getStatusMessage(progresso)}`
+                    }
+                </InfoTypography>
             </GridItem>
         </GridContainer>
     );

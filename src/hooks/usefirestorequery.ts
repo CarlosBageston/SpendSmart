@@ -7,11 +7,14 @@ import {
     updateDoc, 
     deleteDoc, 
     QueryConstraint, 
-    DocumentData 
+    DocumentData, 
+    limit,
+    startAfter
 } from 'firebase/firestore';
 import { db } from '@/config/firebase';
 import { Dispatch } from 'redux';
 import { setAddItemLoading, setDeleteItemLoading, setGetAllItemsLoading, setGetItemsByQueryLoading, setGetSumLoading, setUpdateItemLoading } from '@/store/reducer/loadingSlice';
+import { setError } from '@/store/reducer/reducer';
 
 // Função para obter todos os itens de uma coleção
 export async function getAllItems<T = DocumentData>(
@@ -38,17 +41,31 @@ export async function getAllItems<T = DocumentData>(
 export async function getItemsByQuery<T = DocumentData>(
     collectionName: string,
     constraints: QueryConstraint[],
-    dispatch: Dispatch
-): Promise<T[]> {
+    dispatch: Dispatch,
+    maxItems?: number,
+    lastVisibleDoc?: DocumentData | null,
+): Promise<{ data: T[], lastVisible: DocumentData | null }> {
     dispatch(setGetItemsByQueryLoading(true));
     try {
         const collectionRef = collection(db, collectionName);
-        const q = query(collectionRef, ...constraints);
+
+        let q = query(collectionRef, ...constraints)
+        if(maxItems){
+            q = query(collectionRef, ...constraints, limit(maxItems));
+            if (lastVisibleDoc) {
+                q = query(collectionRef, ...constraints, startAfter(lastVisibleDoc), limit(maxItems || 10));
+            }
+        }
+
         const querySnapshot = await getDocs(q);
-        return querySnapshot.docs.map(doc => ({
+        const data = querySnapshot.docs.map(doc => ({
             id: doc.id,
             ...doc.data(),
         } as T));
+
+        const lastVisible = querySnapshot.docs[querySnapshot.docs.length - 1] || null;
+
+        return { data, lastVisible };
     } catch (error) {
         console.error('Erro ao buscar itens com consulta:', error);
         throw new Error('Erro ao buscar itens com consulta.');
@@ -99,7 +116,7 @@ export async function addItem<T extends DocumentData>(
         await addDoc(collectionRef, item);
     } catch (error) {
         console.error('Erro ao adicionar item:', error);
-        throw new Error('Erro ao adicionar item.');
+        dispatch(setError("Erro ao adicionar Item"))
     } finally {
         dispatch(setAddItemLoading(false));
     }
@@ -118,7 +135,7 @@ export async function updateItem(
         await updateDoc(docRef, updates);
     } catch (error) {
         console.error('Erro ao atualizar item:', error);
-        throw new Error('Erro ao atualizar item.');
+        dispatch(setError("Erro ao Editar Item"))
     } finally {
         dispatch(setUpdateItemLoading(false));
     }

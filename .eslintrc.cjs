@@ -18,6 +18,7 @@ module.exports = {
         "react/react-in-jsx-scope": "off",
         "@typescropt-eslint/exclicit-module-boundary-types": "off",
         "@typescript-eslint/no-explicit-any": "off",
-        "@typescript-eslint/no-unused-vars": "warn"
+        "@typescript-eslint/no-unused-vars": "warn",
+        "react-hooks/exhaustive-deps": "off"
   },
 }

@@ -3,6 +3,7 @@ import { Card, CardContent, Typography, IconButton, styled } from '@mui/material
 import EditIcon from '@mui/icons-material/Edit';
 import { FixedCostsModel } from '@/page/fixedcosts/model';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
+import moment from 'moment';
 interface ExpenseCardProps {
     expense: FixedCostsModel;
     onClickEdit?: () => void;
@@ -24,8 +25,8 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({ expense, onClickEdit, onClick
                         <DeleteForeverIcon color='error' />
                     </IconButtonStyled>
                 </TitleContainer>
-                <Subtitle>Dia de Venc.: {expense.dayVencimento.toString().substring(0, 2)}</Subtitle>
-                <Subtitle>periodo de pagamento: {expense.dtIndefinida ? 'Indefinida' : expense.dtVigencia.substring(3)}</Subtitle>
+                <Subtitle>Dia de Venc.: {expense.dayVencimento.toString().substring(8, 10)}</Subtitle>
+                <Subtitle>periodo de pagamento: {expense.dtIndefinida ? 'Indefinida' : moment(expense.dtVigencia).format("MM/YYYY")}</Subtitle>
             </CardContentMui>
         </StyledCard>
     );

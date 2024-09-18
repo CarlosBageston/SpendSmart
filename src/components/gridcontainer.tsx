@@ -1,15 +1,16 @@
 // GridContainer.tsx
 import React from 'react';
-import { Grid } from '@mui/material';
+import { Grid, GridProps } from '@mui/material';
 import styled from 'styled-components';
 
-interface GridContainerProps {
+interface GridContainerProps extends GridProps {
     direction?: 'row' | 'row-reverse' | 'column' | 'column-reverse';
     alignItems?: 'flex-start' | 'center' | 'flex-end' | 'stretch';
     justifyContent?: 'flex-start' | 'center' | 'flex-end' | 'space-between' | 'space-around' | 'space-evenly';
     spacing?: number;
     style?: React.CSSProperties;
     children: React.ReactNode;
+    className?: string;
 }
 
 const GridContainer: React.FC<GridContainerProps> = ({
@@ -18,7 +19,9 @@ const GridContainer: React.FC<GridContainerProps> = ({
     justifyContent = 'center',
     spacing = 4,
     style,
+    className,
     children,
+    ...rest
 }) => {
     return (
         <StyledGridContainer
@@ -28,6 +31,8 @@ const GridContainer: React.FC<GridContainerProps> = ({
             justifyContent={justifyContent}
             spacing={spacing}
             style={style}
+            className={className}
+            {...rest}
         >
             {children}
         </StyledGridContainer>

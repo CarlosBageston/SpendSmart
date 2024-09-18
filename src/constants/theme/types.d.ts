@@ -20,21 +20,25 @@ declare module 'styled-components' {
              */
             darkGreen: string,
             /**
-             * Cor de erro, usada para alertas e mensagens de erro
+             * Cor de erro, usada para alertas e mensagens de erro #c72020
              */
             error: string,
             /**
-             * Cor de aviso, usada para alertas e mensagens de aviso
+             * Cor de aviso, usada para alertas e mensagens de aviso #FFC107
              */
             warning: string,
             /**
-             * Cor de sucesso, usada para mensagens de sucesso
+             * Cor de sucesso, usada para mensagens de sucesso #4CAF50
              */
             success: string,
             /**
-             * Cor neutra para backgrounds e bordas
+             * Cor neutra para backgrounds e bordas #F5F5F5
              */
             neutral: string,
+            /**
+             * Cor Azul usada para informações #0068FF
+             */
+            info: string,
         },
         fontsDefault: {
             primaryFont: string,
